@@ -8,7 +8,7 @@ namespace FreeRDC.Host
 {
     public partial class frmMain : Form
     {
-        FreeRDCHost Host;
+        RDCHostService Host;
         Dictionary<string, Dictionary<string, string>> Config = new Dictionary<string, Dictionary<string, string>>();
 
         public frmMain()
@@ -19,7 +19,7 @@ namespace FreeRDC.Host
         private void frmMain_Load(object sender, EventArgs e)
         {
             trayIcon.Icon = this.Icon;
-            Host = new FreeRDCHost();
+            Host = new RDCHostService();
 
             Config = INIFile.Read(Program.AppPath + "Config.ini");
             Host.MasterServerHostname = Config["FreeRDC"]["Master"];

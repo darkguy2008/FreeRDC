@@ -43,21 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FreeRDCHost.cs" />
-    <Compile Include="FreeRDCHostClient.cs" />
-    <Compile Include="FreeRDCMaster.cs" />
+    <Compile Include="RDCHostService.cs" />
+    <Compile Include="RDCHostClientConnection.cs" />
+    <Compile Include="RDCHostMasterConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Remote\RemoteMouse.cs" />
-    <Compile Include="ScreenCapture.cs" />
+    <Compile Include="Remote\RDCRemoteMouse.cs" />
+    <Compile Include="RDCScreenCapture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
       <Project>{3B5A4DE0-C694-4AE4-AC25-C4402ACD5788}</Project>
       <Name>FreeRDC.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Common\FreeRDC.Services.Common.csproj">
-      <Project>{A07E5801-FB6D-4832-8356-9D1F66F56675}</Project>
-      <Name>FreeRDC.Services.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

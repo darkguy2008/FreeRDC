@@ -1,35 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Text;
 using System.Net.Sockets;
-using System.Threading;
-using FreeRDC.Services.Common;
 using FreeRDC.Common.Network;
+using System.Net;
+using System.Threading;
 
-namespace FreeRDC.Services.Host
+namespace FreeRDC.Master
 {
-    public class FreeRDCHost : BaseNetwork
+    public class RDCMasterService : RDCBaseNetwork
     {
         private TcpListener server;
         public static volatile bool IsAlive;
         public object mutexClient = new object();
-        private FreeRDCMaster master = new FreeRDCMaster();
-        List<FreeRDCHostClient> clients = new List<FreeRDCHostClient>();
-
-        public string MasterServerHostname
-        {
-            get { return master.MasterServerHostname; }
-            set { master.MasterServerHostname = value; }
-        }
+        List<RDCMasterClientConnection> clients = new List<RDCMasterClientConnection>();
 
         public void Start()
         {
-            Thread.Sleep(5000);
-
-            master.Start();
-
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 10000);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 80);
             server = new TcpListener(localEndPoint);
             server.Start(100);
             StartAccept();
@@ -40,7 +29,7 @@ namespace FreeRDC.Services.Host
         {
             while (clients.Where(x => x.Thread.IsAlive).Count() > 0)
             {
-                foreach (FreeRDCHostClient c in clients)
+                foreach (RDCMasterClientConnection c in clients)
                     c.IsAlive = false;
                 Thread.Sleep(10);
             }
@@ -58,8 +47,9 @@ namespace FreeRDC.Services.Host
             StartAccept();
             lock (mutexClient)
             {
-                FreeRDCHostClient c = new FreeRDCHostClient()
+                RDCMasterClientConnection c = new RDCMasterClientConnection()
                 {
+                    Parent = this,
                     Client = client,
                     Listener = listener,
                     ClientStream = client.GetStream(),

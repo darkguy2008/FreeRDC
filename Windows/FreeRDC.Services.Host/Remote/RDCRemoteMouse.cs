@@ -2,11 +2,11 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using FreeRDC.Services.Common.Commands;
+using FreeRDC.Common.Network;
 
 namespace FreeRDC.Services.Host.Remote
 {
-    public static class RemoteMouse
+    public static class RDCRemoteMouse
     {
         // http://stackoverflow.com/questions/2416748/how-to-simulate-mouse-click-in-c
 
@@ -38,18 +38,18 @@ namespace FreeRDC.Services.Host.Remote
 
 
 
-        public static void Move(CommandMouseStruct data)
+        public static void Move(RDCMouseStruct data)
         {
             SetCursorPos(data.Position.X, data.Position.Y);
         }
 
-        public static void Click(CommandMouseStruct data)
+        public static void Click(RDCMouseStruct data)
         {
             Move(data);
             MouseEvent(MouseEventFlags.LeftDown | MouseEventFlags.LeftUp, data.Position);
         }
 
-        public static void Down(CommandMouseStruct data)
+        public static void Down(RDCMouseStruct data)
         {
             Move(data);
             MouseEventFlags flags = 0;
@@ -59,7 +59,7 @@ namespace FreeRDC.Services.Host.Remote
             MouseEvent(flags, data.Position);
         }
 
-        public static void Up(CommandMouseStruct data)
+        public static void Up(RDCMouseStruct data)
         {
             Move(data);
             MouseEventFlags flags = 0;

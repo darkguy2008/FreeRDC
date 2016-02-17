@@ -8,5 +8,12 @@ namespace FreeRDC.Client
         {
             InitializeComponent();
         }
+
+        private void btnConnect_Click(object sender, System.EventArgs e)
+        {
+            frmRemote frm = new frmRemote();
+            Hide();
+            frm.Show();
+        }
     }
 }

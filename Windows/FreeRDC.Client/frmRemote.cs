@@ -3,14 +3,13 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using FreeRDC.Services.Client;
-using FreeRDC.Services.Common;
 using FreeRDC.Common.Network;
 
 namespace FreeRDC.Client
 {
     public partial class frmRemote : Form
     {
-        FreeRDCClient client;
+        RDCClientService client;
         Point MousePos = new Point();
 
         public frmRemote()
@@ -20,12 +19,12 @@ namespace FreeRDC.Client
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            client = new FreeRDCClient();
-            client.OnScreenUpdateFull += new FreeRDCClient.CommandDataEventDelegate(client_OnScreenUpdateFull);
+            client = new RDCClientService();
+            client.OnScreenUpdateFull += new RDCClientService.CommandDataEventDelegate(client_OnScreenUpdateFull);
             client.Start();
         }
 
-        private void client_OnScreenUpdateFull(CommandStruct data)
+        private void client_OnScreenUpdateFull(RDCCommandStruct data)
         {
             MemoryStream ms = new MemoryStream((byte[])data.Payload);
             Image img = Image.FromStream(ms, false, false);

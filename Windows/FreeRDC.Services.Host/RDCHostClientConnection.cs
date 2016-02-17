@@ -1,14 +1,12 @@
 ﻿using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using FreeRDC.Services.Common;
-using FreeRDC.Services.Common.Commands;
 using FreeRDC.Services.Host.Remote;
 using FreeRDC.Common.Network;
 
 namespace FreeRDC.Services.Host
 {
-    public class FreeRDCHostClient : BaseNetwork
+    public class RDCHostClientConnection : RDCBaseNetwork
     {
         public Thread Thread { get; set; }
         public TcpClient Client { get; set; }
@@ -19,7 +17,7 @@ namespace FreeRDC.Services.Host
 
         public bool IsAlive { get; set; }
         private volatile bool isStreaming = false;
-        private ScreenCapture screencap = new ScreenCapture();
+        private RDCScreenCapture screencap = new RDCScreenCapture();
         private Thread thStream;
         long oldLen = 0; // Basic method for checking if to send a new image
 
@@ -38,14 +36,14 @@ namespace FreeRDC.Services.Host
             DataWriter = new BinaryWriter(ClientStream);
             while (IsAlive)
                 if (ClientStream.DataAvailable)
-                    ProcessCommand((CommandStruct)binFmt.Deserialize(ClientStream));
+                    ProcessCommand((RDCCommandStruct)binFmt.Deserialize(ClientStream));
         }
 
-        public void ProcessCommand(CommandStruct cmdData)
+        public void ProcessCommand(RDCCommandStruct cmdData)
         {
-            switch (cmdData.Command.ToUpperInvariant().Trim())
+            switch (cmdData.Command)
             {
-                case HostCmdName.HOST_STREAM_START:
+                case RDCCommandType.STREAM_START:
                     if (thStream != null && !thStream.IsAlive)
                         thStream = null;
                     isStreaming = true;
@@ -53,20 +51,20 @@ namespace FreeRDC.Services.Host
                     thStream.Start();
                     break;
 
-                case HostCmdName.HOST_STREAM_STOP:
+                case RDCCommandType.STREAM_STOP:
                     isStreaming = false;
                     break;
 
-                case HostCmdName.HOST_MOUSE_MOVE:
-                    RemoteMouse.Move((CommandMouseStruct)cmdData.Payload);
+                case RDCCommandType.MOUSE_MOVE:
+                    RDCRemoteMouse.Move((RDCMouseStruct)cmdData.Payload);
                     break;
 
-                case HostCmdName.HOST_MOUSE_DOWN:
-                    RemoteMouse.Down((CommandMouseStruct)cmdData.Payload);
+                case RDCCommandType.MOUSE_DOWN:
+                    RDCRemoteMouse.Down((RDCMouseStruct)cmdData.Payload);
                     break;
 
-                case HostCmdName.HOST_MOUSE_UP:
-                    RemoteMouse.Up((CommandMouseStruct)cmdData.Payload);
+                case RDCCommandType.MOUSE_UP:
+                    RDCRemoteMouse.Up((RDCMouseStruct)cmdData.Payload);
                     break;
             }
         }
@@ -79,7 +77,7 @@ namespace FreeRDC.Services.Host
             {
                 MemoryStream ms = screencap.Capture3();
                 if(oldLen != ms.Length)
-                    SendCommand(DataWriter, "FULL", ms.ToArray());
+                    SendCommand(DataWriter, RDCCommandType.REFRESH_FULL, ms.ToArray());
                 oldLen = ms.Length;
             }
         }

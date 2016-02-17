@@ -3,9 +3,9 @@
 namespace FreeRDC.Common.Network
 {
     [Serializable]
-    public struct CommandStruct
+    public struct RDCCommandStruct
     {
-        public string Command;
+        public RDCCommandType Command;
         public object Payload;
     }
 }

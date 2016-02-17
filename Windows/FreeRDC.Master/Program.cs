@@ -9,7 +9,7 @@ namespace FreeRDC.Master
     {
         static void Main(string[] args)
         {
-            MasterServer server = new MasterServer();
+            RDCMasterService server = new RDCMasterService();
             server.Start();
 
             Console.WriteLine("Server started");

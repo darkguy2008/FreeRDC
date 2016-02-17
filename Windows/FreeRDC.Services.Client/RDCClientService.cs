@@ -4,13 +4,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
-using FreeRDC.Services.Common;
-using FreeRDC.Services.Common.Commands;
 using FreeRDC.Common.Network;
 
 namespace FreeRDC.Services.Client
 {
-    public class FreeRDCClient : BaseNetwork
+    public class RDCClientService : RDCBaseNetwork
     {
         private TcpClient client;
         private Thread thClient;
@@ -18,13 +16,11 @@ namespace FreeRDC.Services.Client
         public BinaryReader DataReader { get; set; }
         public BinaryWriter DataWriter { get; set; }
 
-        public delegate void CommandDataEventDelegate(CommandStruct data);
+        public delegate void CommandDataEventDelegate(RDCCommandStruct data);
         public event CommandDataEventDelegate OnScreenUpdateFull;
 
         public void Start()
         {
-            Thread.Sleep(30000);
-
             IPHostEntry ipHostInfo = Dns.Resolve("XPTEST");
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, 10000);
@@ -41,17 +37,17 @@ namespace FreeRDC.Services.Client
             ClientStream = client.GetStream();
             DataReader = new BinaryReader(ClientStream);
             DataWriter = new BinaryWriter(ClientStream);
-            SendCommand(DataWriter, HostCmdName.HOST_STREAM_START, null);
+            SendCommand(DataWriter, RDCCommandType.STREAM_START, null);
             while (true)
                 if (ClientStream.DataAvailable)
-                    ProcessCommand((CommandStruct)binFmt.Deserialize(ClientStream));
+                    ProcessCommand((RDCCommandStruct)binFmt.Deserialize(ClientStream));
         }
 
-        public void ProcessCommand(CommandStruct cmdData)
+        public void ProcessCommand(RDCCommandStruct cmdData)
         {
-            switch (cmdData.Command.ToUpperInvariant().Trim())
+            switch (cmdData.Command)
             {
-                case "FULL":
+                case RDCCommandType.REFRESH_FULL:
                     if (OnScreenUpdateFull != null)
                         OnScreenUpdateFull.Invoke(cmdData);
                     break;
@@ -62,7 +58,7 @@ namespace FreeRDC.Services.Client
         
         public void MouseMove(Point p)
         {
-            SendCommand(DataWriter, HostCmdName.HOST_MOUSE_MOVE, new CommandMouseStruct()
+            SendCommand(DataWriter, RDCCommandType.MOUSE_MOVE, new RDCMouseStruct()
             {
                 Flags = 0,
                 Buttons = MouseButtons.None,
@@ -72,7 +68,7 @@ namespace FreeRDC.Services.Client
 
         public void MouseDown(Point mousePos, MouseButtons buttons)
         {
-            SendCommand(DataWriter, HostCmdName.HOST_MOUSE_DOWN, new CommandMouseStruct()
+            SendCommand(DataWriter, RDCCommandType.MOUSE_DOWN, new RDCMouseStruct()
             {
                 Flags = 0,
                 Buttons = buttons,
@@ -82,7 +78,7 @@ namespace FreeRDC.Services.Client
 
         public void MouseUp(Point mousePos, MouseButtons buttons)
         {
-            SendCommand(DataWriter, HostCmdName.HOST_MOUSE_UP, new CommandMouseStruct()
+            SendCommand(DataWriter, RDCCommandType.MOUSE_UP, new RDCMouseStruct()
             {
                 Flags = 0,
                 Buttons = buttons,

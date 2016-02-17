@@ -43,10 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MasterCmdName.cs" />
-    <Compile Include="MasterClient.cs" />
-    <Compile Include="MasterServer.cs" />
-    <Compile Include="MasterServices.cs" />
+    <Compile Include="RDCMasterClientConnection.cs" />
+    <Compile Include="RDCMasterService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

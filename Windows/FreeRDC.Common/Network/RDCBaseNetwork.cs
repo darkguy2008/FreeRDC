@@ -5,14 +5,14 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FreeRDC.Common.Network
 {
-    public class BaseNetwork
+    public class RDCBaseNetwork
     {
         public BinaryFormatter binFmt = new BinaryFormatter();
 
-        public void SendCommand(BinaryWriter bw, String cmd, object arguments)
+        public void SendCommand(BinaryWriter bw, RDCCommandType cmd, object arguments)
         {
             MemoryStream ms = new MemoryStream();
-            CommandStruct data = new CommandStruct() { Command = cmd };
+            RDCCommandStruct data = new RDCCommandStruct() { Command = cmd };
             if (arguments != null)
                 data.Payload = arguments;
             binFmt.Serialize(ms, data);

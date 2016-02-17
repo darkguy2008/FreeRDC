@@ -9,7 +9,7 @@ namespace FreeRDC.Services.Host
 {
     
     // Taken from http://www.developerfusion.com/code/4630/capture-a-screen-shot/
-    public class ScreenCapture
+    public class RDCScreenCapture
     {
 
         public Image Capture()

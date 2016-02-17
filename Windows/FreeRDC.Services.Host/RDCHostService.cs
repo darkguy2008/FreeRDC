@@ -1,25 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using FreeRDC.Common.Network;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
+using FreeRDC.Common.Network;
 
-namespace FreeRDC.Master
+namespace FreeRDC.Services.Host
 {
-    public class MasterServer : BaseNetwork
+    public class RDCHostService : RDCBaseNetwork
     {
         private TcpListener server;
         public static volatile bool IsAlive;
         public object mutexClient = new object();
-        public MasterServices Services = new MasterServices();
-        List<MasterClient> clients = new List<MasterClient>();
+        private RDCHostMasterConnection master = new RDCHostMasterConnection();
+        List<RDCHostClientConnection> clients = new List<RDCHostClientConnection>();
+
+        public string MasterServerHostname
+        {
+            get { return master.MasterServerHostname; }
+            set { master.MasterServerHostname = value; }
+        }
 
         public void Start()
         {
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 80);
+            Thread.Sleep(5000);
+
+            master.Start();
+
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 10000);
             server = new TcpListener(localEndPoint);
             server.Start(100);
             StartAccept();
@@ -30,7 +39,7 @@ namespace FreeRDC.Master
         {
             while (clients.Where(x => x.Thread.IsAlive).Count() > 0)
             {
-                foreach (MasterClient c in clients)
+                foreach (RDCHostClientConnection c in clients)
                     c.IsAlive = false;
                 Thread.Sleep(10);
             }
@@ -48,9 +57,8 @@ namespace FreeRDC.Master
             StartAccept();
             lock (mutexClient)
             {
-                MasterClient c = new MasterClient()
+                RDCHostClientConnection c = new RDCHostClientConnection()
                 {
-                    Parent = this,
                     Client = client,
                     Listener = listener,
                     ClientStream = client.GetStream(),

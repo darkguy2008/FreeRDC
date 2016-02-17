@@ -7,10 +7,11 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Net;
+using System.Diagnostics;
 
 namespace FreeRDC.Services.Host
 {
-    public class FreeRDCMaster : BaseNetwork
+    public class RDCHostMasterConnection : RDCBaseNetwork
     {
         public Thread Thread { get; set; }
         public TcpClient Client { get; set; }
@@ -40,10 +41,20 @@ namespace FreeRDC.Services.Host
         {
             DataReader = new BinaryReader(ClientStream);
             DataWriter = new BinaryWriter(ClientStream);
-            SendCommand(DataWriter, "AUTHREQID", null);
+            SendCommand(DataWriter, RDCCommandType.AUTH_REQUEST_ID, null);
             while (IsAlive)
-                if (ClientStream.DataAvailable) { }
-                    //ProcessCommand((CommandStruct)binFmt.Deserialize(ClientStream));
+                if (ClientStream.DataAvailable)
+                    ProcessCommand((RDCCommandStruct)binFmt.Deserialize(ClientStream));
+        }
+
+        public void ProcessCommand(RDCCommandStruct cmdData)
+        {
+            switch (cmdData.Command)
+            {
+                case RDCCommandType.AUTH_ASSIGNED_ID:
+                    Debug.WriteLine("Assigned ID: " + (string)cmdData.Payload);
+                    break;
+            }
         }
     }
 }

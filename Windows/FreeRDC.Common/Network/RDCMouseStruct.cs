@@ -2,10 +2,10 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FreeRDC.Services.Common.Commands
+namespace FreeRDC.Common.Network
 {
     [Serializable]
-    public struct CommandMouseStruct
+    public struct RDCMouseStruct
     {
         public int Flags;
         public Point Position;

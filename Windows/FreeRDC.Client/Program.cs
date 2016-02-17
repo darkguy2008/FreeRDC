@@ -10,7 +10,7 @@ namespace FreeRDC.Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmRemote());
+            Application.Run(new frmMain());
         }
     }
 }

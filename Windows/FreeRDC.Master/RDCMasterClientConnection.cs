@@ -9,11 +9,11 @@ using System.IO;
 
 namespace FreeRDC.Master
 {
-    public class MasterClient : BaseNetwork
+    public class RDCMasterClientConnection : RDCBaseNetwork
     {
         public Thread Thread { get; set; }
         public TcpClient Client { get; set; }
-        public MasterServer Parent { get; set; }
+        public RDCMasterService Parent { get; set; }
         public TcpListener Listener { get; set; }
         public NetworkStream ClientStream { get; set; }
         public BinaryReader DataReader { get; set; }
@@ -34,18 +34,17 @@ namespace FreeRDC.Master
             DataWriter = new BinaryWriter(ClientStream);
             while (IsAlive)
                 if (ClientStream.DataAvailable)
-                    ProcessCommand((CommandStruct)binFmt.Deserialize(ClientStream));
+                    ProcessCommand((RDCCommandStruct)binFmt.Deserialize(ClientStream));
         }
 
-        public void ProcessCommand(CommandStruct cmdData)
+        public void ProcessCommand(RDCCommandStruct cmdData)
         {
             Console.WriteLine("Command: " + cmdData.Command);
-            switch (cmdData.Command.ToUpperInvariant().Trim())
+            switch (cmdData.Command)
             {
-                case MasterCmdName.MASTER_REQUEST_ID:
+                case RDCCommandType.AUTH_REQUEST_ID:
                     string newID = "LALALA";
-                    // TODO: Globalize/Standarize command names in const strings?
-                    //SendCommand(DataWriter, 
+                    SendCommand(DataWriter, RDCCommandType.AUTH_ASSIGNED_ID, newID);
                     break;
 
                 default:
