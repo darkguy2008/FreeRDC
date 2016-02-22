@@ -5,13 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{93B0BC58-7719-4417-8778-8DB0C7A9B6D8}</ProjectGuid>
+    <ProjectGuid>{D8FB6C69-CD0D-478A-90C6-6BDA9AD3A49F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FreeRDC.Host</RootNamespace>
     <AssemblyName>FreeRDC.Host</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -19,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>Z:\FreeRDC\</OutputPath>
+    <OutputPath>Z:\FreeRDC\Host\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -54,9 +55,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="frmMain.resx">
-      <DependentUpon>frmMain.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -70,6 +68,7 @@
     <Content Include="Config.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -82,16 +81,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
-      <Project>{3B5A4DE0-C694-4AE4-AC25-C4402ACD5788}</Project>
+      <Project>{F1A2734B-BAEE-458C-A753-92B92DCD43BA}</Project>
       <Name>FreeRDC.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\FreeRDC.Services.Host\FreeRDC.Services.Host.csproj">
-      <Project>{E4882432-DBDC-4AED-98CB-78C10911E6C2}</Project>
+      <Project>{43EC35B2-C46E-4800-A034-6CEC6EA00452}</Project>
       <Name>FreeRDC.Services.Host</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\icnConfig.png" />
+    <Content Include="res\icnConfig.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

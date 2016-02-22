@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E4882432-DBDC-4AED-98CB-78C10911E6C2}</ProjectGuid>
+    <ProjectGuid>{43EC35B2-C46E-4800-A034-6CEC6EA00452}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FreeRDC.Services.Host</RootNamespace>
@@ -35,7 +35,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,16 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RDCHostService.cs" />
-    <Compile Include="RDCHostClientConnection.cs" />
-    <Compile Include="RDCHostMasterConnection.cs" />
+    <Compile Include="HostService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remote\RDCRemoteMouse.cs" />
-    <Compile Include="RDCScreenCapture.cs" />
+    <Compile Include="Remote\RDCScreenCapture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
-      <Project>{3B5A4DE0-C694-4AE4-AC25-C4402ACD5788}</Project>
+      <Project>{F1A2734B-BAEE-458C-A753-92B92DCD43BA}</Project>
       <Name>FreeRDC.Common</Name>
     </ProjectReference>
   </ItemGroup>

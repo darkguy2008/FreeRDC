@@ -31,15 +31,15 @@
             this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.trayMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.shutdownFreeRDCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.trayMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.shutdownFreeRDCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trayMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,6 +59,33 @@
             this.trayIcon.Text = "FreeRDC Host";
             this.trayIcon.Visible = true;
             this.trayIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.trayIcon_MouseDoubleClick);
+            // 
+            // trayMenu
+            // 
+            this.trayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.shutdownFreeRDCToolStripMenuItem});
+            this.trayMenu.Name = "trayMenu";
+            this.trayMenu.Size = new System.Drawing.Size(180, 76);
+            // 
+            // showToolStripMenuItem
+            // 
+            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.showToolStripMenuItem.Text = "Show";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(176, 6);
+            // 
+            // shutdownFreeRDCToolStripMenuItem
+            // 
+            this.shutdownFreeRDCToolStripMenuItem.Name = "shutdownFreeRDCToolStripMenuItem";
+            this.shutdownFreeRDCToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.shutdownFreeRDCToolStripMenuItem.Text = "Shutdown FreeRDC";
+            this.shutdownFreeRDCToolStripMenuItem.Click += new System.EventHandler(this.shutdownFreeRDCToolStripMenuItem_Click);
             // 
             // label2
             // 
@@ -88,7 +115,6 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(139, 24);
             this.label4.TabIndex = 4;
-            this.label4.Text = "a7q9s4";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label5
@@ -99,7 +125,6 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(139, 24);
             this.label5.TabIndex = 5;
-            this.label5.Text = "197 569";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1
@@ -112,32 +137,7 @@
             this.button1.Size = new System.Drawing.Size(24, 24);
             this.button1.TabIndex = 6;
             this.button1.UseVisualStyleBackColor = true;
-            // 
-            // trayMenu
-            // 
-            this.trayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.shutdownFreeRDCToolStripMenuItem});
-            this.trayMenu.Name = "trayMenu";
-            this.trayMenu.Size = new System.Drawing.Size(180, 54);
-            // 
-            // showToolStripMenuItem
-            // 
-            this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.showToolStripMenuItem.Text = "Show";
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(176, 6);
-            // 
-            // shutdownFreeRDCToolStripMenuItem
-            // 
-            this.shutdownFreeRDCToolStripMenuItem.Name = "shutdownFreeRDCToolStripMenuItem";
-            this.shutdownFreeRDCToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.shutdownFreeRDCToolStripMenuItem.Text = "Shutdown FreeRDC";
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // frmMain
             // 
