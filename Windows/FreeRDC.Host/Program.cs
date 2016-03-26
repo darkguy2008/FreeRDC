@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using FreeRDC.Network.Host;
+using System;
 using System.Windows.Forms;
-using System.IO;
-using System.Reflection;
 
 namespace FreeRDC.Host
 {
     static class Program
     {
-        public static string AppPath { get { return new FileInfo(Assembly.GetEntryAssembly().Location).DirectoryName + "\\"; } }
+        public static HostService Host;
 
         [STAThread]
         static void Main()

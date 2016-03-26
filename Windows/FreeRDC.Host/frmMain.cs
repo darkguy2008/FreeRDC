@@ -1,71 +1,119 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FreeRDC.Common.IO;
+using FreeRDC.Network.Host;
+using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using FreeRDC.Services.Host;
-using FreeRDC.Common.IO;
-using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace FreeRDC.Host
 {
     public partial class frmMain : Form
     {
-        public HostService Host = new HostService();
-        public Dictionary<string, Dictionary<string, string>> Config;
-        public string ConfigFilename { get; set; }
+        public bool IsExiting { get; set; }
+        private BackgroundWorker bgServices;
+        private Dictionary<string, Dictionary<string, string>> Config = new Dictionary<string, Dictionary<string, string>>();
+
+        public string HostPassword
+        {
+            get { return Program.Host.Password; }
+            set { Program.Host.Password = value; }
+        }
+        public string MasterHostname { get; set; }
+        public int MasterPort { get; set; }
 
         public frmMain()
         {
             InitializeComponent();
-        }
 
-        private void frmMain_Load(object sender, EventArgs e)
-        {
+            Program.Host = new HostService();
+            Program.Host.OnInitializing += Host_OnInitializing;
+            Program.Host.OnInitialized += Host_OnInitialized;
+            Program.Host.OnMasterConnecting += Host_OnConnecting;
+            Program.Host.OnMasterConnected += Host_OnMasterConnected;
+            Program.Host.OnClientConnected += Host_OnClientConnected;
+
+            Config = INIFile.Read("Host.ini");
+            HostPassword = Config["Host"]["Password"];
+            MasterHostname = Config["Master"]["Hostname"];
+            MasterPort = int.Parse(Config["Master"]["Port"]);
+
             trayIcon.Icon = this.Icon;
-            ConfigFilename = Program.AppPath + "Config.ini";
-            Config = INIFile.Read(ConfigFilename);
-
-            Host.OnConnected += new HostService.StringDataEventDelegate(Host_OnConnected);
-
-            Host.Password = Config["FreeRDC"]["Password"];
-            Host.Start(Config["FreeRDC"]["Master"]);
+            trayIcon.ContextMenuStrip = trayMenu;
+            
+            bgServices = new BackgroundWorker();
+            bgServices.DoWork += BgServices_DoWork;
+            bgServices.RunWorkerAsync();
         }
 
-        private void Host_OnConnected(string arg)
+        private void Host_OnClientConnected()
         {
             Invoke(new Action(() => {
-                label5.Text = arg;
-                label4.Text = Host.Password;
+                Hide();
+            }));
+        }
+
+        private void BgServices_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Program.Host.Init();
+            Program.Host.Connect(MasterHostname, MasterPort);
+        }
+
+        private void Host_OnInitializing()
+        {
+            Invoke(new Action(() => {
+                statusLabel.Text = "Starting up...";
+            }));
+        }
+
+        private void Host_OnInitialized()
+        {
+            Invoke(new Action(() => {
+                statusLabel.Text = "Initialized";
+            }));
+        }
+
+        private void Host_OnConnecting()
+        {
+            Invoke(new Action(() => {
+                statusLabel.Text = "Connecting...";
+            }));
+        }
+
+        private void Host_OnMasterConnected(string hostId)
+        {
+            Invoke(new Action(() => {
+                statusLabel.Text = "Ready";
+                txID.Text = hostId;
+                txPassword.Text = Program.Host.Password;
             }));
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            e.Cancel = true;
+            if (IsExiting)
+                return;
             Hide();
+            e.Cancel = true;
         }
 
-        private void trayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void showHideToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Show();
+            if (Visible)
+                Hide();
+            else
+                Show();
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process p = Process.Start(Program.AppPath + "Config.ini");
-            p.WaitForExit();
-            MessageBox.Show("Restart the app to apply changes");
+            MessageBox.Show("FreeRDC Host © 2016 DARKGuy");
         }
 
-        private void shutdownFreeRDCToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Host.Stop();
+            IsExiting = true;
+            Program.Host.Shutdown();
             Application.Exit();
         }
-
     }
 }
