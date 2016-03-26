@@ -19,6 +19,7 @@ namespace FreeRDC.Client
         public frmMain()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.appIcon;
 
             Program.Client.OnInitializing += Client_OnInitializing;
             Program.Client.OnInitialized += Client_OnInitialized;
@@ -139,6 +140,17 @@ namespace FreeRDC.Client
             IsExiting = true;
             Program.Client.Shutdown();
             Application.Exit();
+        }
+
+        private void trayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (Visible)
+                Hide();
+            else
+            {
+                Show();
+                Focus();
+            }
         }
     }
 }
