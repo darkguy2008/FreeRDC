@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace FreeRDC.Host
 {
@@ -24,6 +25,7 @@ namespace FreeRDC.Host
         public frmMain()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.appIcon;
 
             Program.Host = new HostService();
             Program.Host.OnInitializing += Host_OnInitializing;
@@ -31,6 +33,7 @@ namespace FreeRDC.Host
             Program.Host.OnMasterConnecting += Host_OnConnecting;
             Program.Host.OnMasterConnected += Host_OnMasterConnected;
             Program.Host.OnClientConnected += Host_OnClientConnected;
+            Program.Host.OnMasterConnectionError += Host_OnMasterConnectionError;
 
             Config = INIFile.Read("Host.ini");
             HostPassword = Config["Host"]["Password"];
@@ -39,10 +42,22 @@ namespace FreeRDC.Host
 
             trayIcon.Icon = this.Icon;
             trayIcon.ContextMenuStrip = trayMenu;
-            
-            bgServices = new BackgroundWorker();
+
+            bgServices = new BackgroundWorker() { WorkerSupportsCancellation = true };
             bgServices.DoWork += BgServices_DoWork;
-            bgServices.RunWorkerAsync();
+        }
+
+        private void Host_OnMasterConnectionError()
+        {
+            Invoke(new Action(() => {
+                statusLabel.Text = "Cannot connect to Master. Retrying...";
+                new Thread(() =>
+                {
+                    Thread.Sleep(1000);
+                    bgServices.CancelAsync();
+                    bgServices.RunWorkerAsync();
+                }).Start();
+            }));
         }
 
         private void Host_OnClientConnected()
@@ -85,6 +100,7 @@ namespace FreeRDC.Host
                 statusLabel.Text = "Ready";
                 txID.Text = hostId;
                 txPassword.Text = Program.Host.Password;
+                trayIcon.Text = "FreeRDC Host - " + hostId;
             }));
         }
 
@@ -121,6 +137,22 @@ namespace FreeRDC.Host
             IsExiting = true;
             Program.Host.Shutdown();
             Application.Exit();
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            bgServices.RunWorkerAsync();
+        }
+
+        private void trayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (Visible)
+                Hide();
+            else
+            {
+                Show();
+                Focus();
+            }
         }
     }
 }

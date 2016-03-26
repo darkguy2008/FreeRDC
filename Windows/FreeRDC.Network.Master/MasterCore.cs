@@ -25,6 +25,13 @@ namespace FreeRDC.Network.Master
             public Peer Connection { get; set; }
         }
 
+        public void RemoveConnection(Peer client)
+        {
+            connections.RemoveAll(x => x == client);
+            hosts.RemoveAll(x => x.Connection == client);
+            clients.RemoveAll(x => x.Connection == client);
+        }
+
         public List<Peer> connections = new List<Peer>();
         public List<ConnectedHost> hosts = new List<ConnectedHost>();
         public List<ConnectedClient> clients = new List<ConnectedClient>();

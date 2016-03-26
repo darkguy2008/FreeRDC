@@ -8,10 +8,11 @@ namespace FreeRDC.Network
         public Host Listener;
         public bool IsListening { get; set; }
 
-        public delegate void onClientConnected(Peer client);
+        public delegate void onClientConnection(Peer client);
         public delegate void onDataReceived(Event evt, byte[] data);
         public event onDataReceived OnDataReceived;
-        public event onClientConnected OnClientConnected;
+        public event onClientConnection OnClientConnected;
+        public event onClientConnection OnClientDisconnected;
 
         public RawUDPServer()
         {
@@ -44,6 +45,10 @@ namespace FreeRDC.Network
                                     byte[] data = evt.Packet.GetBytes();
                                     evt.Packet.Dispose();
                                     OnDataReceived?.Invoke(evt, data);                                    
+                                    break;
+
+                                case EventType.Disconnect:
+                                    OnClientDisconnected?.Invoke(evt.Peer);
                                     break;
                             }
                         } while (Listener.CheckEvents(out evt));

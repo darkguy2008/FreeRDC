@@ -19,6 +19,10 @@ namespace FreeRDC.Network
             {
                 OnCommandReceived(evt, _serializer.Deserialize<RDCCommand>(Encoding.UTF8.GetString(data)));
             };
+            client.OnConnectionTimeout += () =>
+            {
+                ConnectTimeout();
+            };
         }
 
         public virtual void OnConnected(Peer client)
@@ -33,6 +37,10 @@ namespace FreeRDC.Network
         public virtual void Disconnect()
         {
             client.Disconnect();
+        }
+
+        public virtual void ConnectTimeout()
+        {
         }
     }
 }

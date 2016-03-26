@@ -15,23 +15,34 @@ namespace FreeRDC.Network.Host
         public event VoidDelegate OnMasterConnecting;
         public event dMasterConnected OnMasterConnected;
         public event VoidDelegate OnClientConnected;
+        public event VoidDelegate OnMasterConnectionError;
 
         public string HostID { get; set; }
         public string Password { get; set; }
         public string Fingerprint { get; set; }
+
+        private bool _isInitialized = false;
         private RDCScreenCapture _screencap = new RDCScreenCapture();
 
         public void Init()
         {
             OnInitializing?.Invoke();
-            Fingerprint = HWID.GenerateFingerprint();
+            if(!_isInitialized)
+                Fingerprint = HWID.GenerateFingerprint();
+            _isInitialized = true;
             OnInitialized?.Invoke();
         }
 
         public override void Connect(string hostname, int port)
         {
             OnMasterConnecting?.Invoke();
-            base.Connect(hostname, port);            
+            base.Connect(hostname, port);
+        }
+
+        public override void ConnectTimeout()
+        {
+            base.ConnectTimeout();
+            OnMasterConnectionError?.Invoke();
         }
 
         public override void OnCommandReceived(Event evt, RDCCommand cmd)

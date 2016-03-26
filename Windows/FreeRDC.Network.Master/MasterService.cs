@@ -19,6 +19,12 @@ namespace FreeRDC.Network.Master
             SendCommand(client, RDCCommandChannel.Auth, RDCCommandType.MASTER_AUTH, null);
         }
 
+        public override void OnClientDisconnected(Peer client)
+        {
+            base.OnClientDisconnected(client);
+            master.RemoveConnection(client);
+        }
+
         public override void OnCommandReceived(Event evt, RDCCommand cmd)
         {
             base.OnCommandReceived(evt, cmd);

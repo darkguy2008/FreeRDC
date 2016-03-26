@@ -1,4 +1,5 @@
 ﻿using ENet;
+using System;
 using System.Threading;
 
 namespace FreeRDC.Network
@@ -7,28 +8,58 @@ namespace FreeRDC.Network
     {
         public Host Client;
         public Peer Connection;
-        public bool IsConnected { get { return Connection.State >= PeerState.Connecting && Connection.State <= PeerState.Connected; } }
+        public bool IsConnected { get { return Connection.State == PeerState.Connected; } }
+        public bool IsConnecting { get { return Connection.State < PeerState.Connected; } }
+        public int ConnectionTimeout { get; set; }
 
+        public delegate void VoidDelegate();
         public delegate void onConnected(Peer connection);
         public delegate void onDataReceived(Event evt, byte[] data);
         public event onDataReceived OnDataReceived;
         public event onConnected OnConnected;
+        public event VoidDelegate OnConnectionTimeout;
+        private Thread thTimeout;
+        private Thread thProcess;
+        private Thread thKeepAlive;
+        private bool keepAliveStarted;
 
         public RawUDPClient()
         {
             Client = new Host();
             Client.Initialize(null, 4095);
+            ConnectionTimeout = 5000;
         }
 
         public void Connect(string hostname, int port)
         {
-            new Thread(() =>
+            thProcess = new Thread(() =>
             {
                 Connection = Client.Connect(hostname, port, 0, 4);
-                while (IsConnected)
+                while (IsConnecting || IsConnected)
                 {
+                    if(!keepAliveStarted)
+                    {
+                        thKeepAlive = new Thread(() =>
+                        {
+                            while (IsConnecting || IsConnected)
+                            {
+                                try
+                                {
+                                    Packet p = new Packet();
+                                    p.Initialize(new byte[] { 0x01 });
+                                    Connection.Send(0, p);
+                                }
+                                catch(ENetException)
+                                { }
+                                Thread.Sleep(5000);
+                            }
+                        });
+                        thKeepAlive.Start();
+                        keepAliveStarted = true;
+                    }
+
                     Event evt;
-                    if(Client.Service(10, out evt))
+                    if (Client.Service(10, out evt))
                     {
                         do
                         {
@@ -47,12 +78,26 @@ namespace FreeRDC.Network
                         } while (Client.CheckEvents(out evt));
                     }
                 }
-            }).Start();                
+            });
+            thTimeout = new Thread(() =>
+            {
+                Thread.Sleep(ConnectionTimeout);
+                if (!IsConnected)
+                {
+                    thProcess.Abort();
+                    thKeepAlive.Abort();
+                    OnConnectionTimeout?.Invoke();
+                }
+            });
+            thTimeout.Start();
+            thProcess.Start();
         }
 
         public void Disconnect()
         {
             Connection.DisconnectNow(-1);
+            thKeepAlive.Abort();
+            keepAliveStarted = false;
             while (IsConnected)
                 Thread.Sleep(100);
         }
