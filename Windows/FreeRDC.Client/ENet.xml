@@ -1,0 +1,868 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ENet</name>
+    </assembly>
+    <members>
+        <member name="T:ENet.ENetException">
+            <summary>
+            This exception is thrown when ENet has an error.
+            </summary>
+        </member>
+        <member name="M:ENet.ENetException.#ctor">
+            <summary>
+            Initializes an ENetException.
+            </summary>
+        </member>
+        <member name="M:ENet.ENetException.#ctor(System.String)">
+            <summary>
+            Initializes an ENetException with a given message.
+            </summary>
+            <param name="message">The error message.</param>
+        </member>
+        <member name="M:ENet.ENetException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes an ENetException with the given message and a reference to an inner exception.
+            </summary>
+            <param name="message">The error message.</param>
+            <param name="innerException">The inner exception.</param>
+        </member>
+        <member name="M:ENet.ENetException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes an ENetException for serialization.
+            </summary>
+            <param name="info">The serialized data.</param>
+            <param name="context">The context for the serialization.</param>
+        </member>
+        <member name="T:ENet.Library">
+            <summary>
+            Provides initialization, deinitialization, and time-keeping methods.
+            </summary>
+        </member>
+        <member name="M:ENet.Library.Initialize">
+            <summary>
+            Throws an exception if the ENet native library cannot be loaded.
+            ENet is now automatically initialized, so it is no longer strictly
+            necessary to call this function.
+            </summary>
+            <exception cref="T:ENet.ENetException">The native library cannot be loaded.</exception>
+        </member>
+        <member name="M:ENet.Library.Deinitialize">
+            <summary>
+            This method is retained for backwards compatibility. It does nothing.
+            </summary>
+        </member>
+        <member name="P:ENet.Library.Time">
+            <summary>
+            Gets or set the time in milliseconds.
+            </summary>
+        </member>
+        <member name="M:ENet.Native.ENetAddress.op_Explicit(System.Net.IPEndPoint)~ENet.Native.ENetAddress">
+            <exception cref="T:System.ArgumentNullException">The address is null.</exception>
+            <exception cref="T:System.ArgumentException">The address is not IPv4.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The port is less than 0 or greater than 65535.</exception>
+        </member>
+        <member name="T:ENet.Host">
+            <summary>
+            Acts as either client or peer-to-peer/server.
+            </summary>
+        </member>
+        <member name="M:ENet.Host.#ctor(ENet.Native.ENetHost*)">
+            <summary>
+            Initializes a host based on a native C host.
+            </summary>
+            <param name="peer">The native C peer.</param>
+        </member>
+        <member name="M:ENet.Host.InitializeClient(System.Int32)">
+            <summary>
+            Initialize a host that will not accept connections.
+            </summary>
+            <param name="peerLimit">
+                The maximum number of peers for this host.
+                If you are only connecting to one server, set this to 1.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="peerLimit"/> is less than 0 or greater than 4095.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Failed to initialize the host.</exception>
+        </member>
+        <member name="M:ENet.Host.InitializeServer(System.Int32,System.Int32)">
+            <summary>
+            Initialize a host that will accept connections on any IP address.
+            </summary>
+            <param name="port">The port to listen on.</param>
+            <param name="peerLimit">The maximum number of peers for this host.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="port"/> is less than 0 or greater than 65535, and/or
+                <paramref name="peerLimit"/> is less than 0 or greater than 4095.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Failed to initialize the host.</exception>
+        </member>
+        <member name="M:ENet.Host.Initialize(System.Net.IPEndPoint,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialize a host that will accept connections on a particular address, or not accept connections.
+            </summary>
+            <param name="address">The address to listen on, or null to not accept connections.</param>
+            <param name="peerLimit">The maximum number of peers for this host.</param>
+            <param name="channelLimit">The maximum number of channels, or 0 to use the maximum possible (255).</param>
+            <param name="incomingBandwidth">The maximum incoming rate of transfer, or 0 for no limit.</param>
+            <param name="outgoingBandwidth">The maximum outgoing rate of transfer, or 0 for no limit.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="peerLimit"/> is less than 0 or greater than 4095,
+                <paramref name="channelLimit"/> is less than 0 or greater than 255,
+                <paramref name="incomingBandwidth"/> is less than 0, and/or
+                <paramref name="outgoingBandwidth"/> is less than 0.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Failed to initialize the host.</exception>
+        </member>
+        <member name="M:ENet.Host.Dispose">
+            <summary>
+            Destroys the host.
+            </summary>
+        </member>
+        <member name="M:ENet.Host.Broadcast(System.Byte,ENet.Packet@)">
+            <summary>
+            Broadcast a packet to all peers.
+            </summary>
+            <param name="channelID">The ID of the channel</param>
+            <param name="packet">The packet to send.</param>
+            <remarks>ENet takes ownership of the packet. Do not call methods on it afterwards.</remarks>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Host.CompressWithRangeEncoder">
+            <summary>
+            Enables compression using the range encoder.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">Failed to create range encoder. This is likely due to low memory.</exception>
+        </member>
+        <member name="M:ENet.Host.DoNotCompress">
+            <summary>
+            Disables compression.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Host.CheckEvents(ENet.Event@)">
+            <summary>
+            Checks for queued events.
+            </summary>
+            <param name="event">The dequeued event.</param>
+            <returns>True if an event was dequeued, otherwise false.</returns>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured while checking events.</exception>
+        </member>
+        <member name="M:ENet.Host.Connect(System.String,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Connects to a remote computer at the given host and port.
+            </summary>
+            <param name="hostName">The IP address or host name to connect to.</param>
+            <param name="port">The port to connect to.</param>
+            <param name="data">Data to send along with the connect packet.</param>
+            <param name="channelLimit">The maximum number of channels, or 0 to use the maximum possible (255).</param>
+            <returns>
+                The new peer. This method does not block: the connection will be established
+                when you receive a <see cref="F:ENet.EventType.Connect"/> event.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="hostName"/> is null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="hostName"/> is invalid.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="hostName"/> is too long,
+                <paramref name="port"/> is less than 0 or greater than 65535, and/or
+                <paramref name="channelLimit"/> is less than 0 or greater than 255.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">Host name lookup failed, or no IPv4 hosts were available.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Host.Connect(System.Net.IPEndPoint,System.Int32,System.Int32)">
+            <summary>
+            Connects to a remote computer at the given address.
+            </summary>
+            <param name="address">The address to connect to.</param>
+            <param name="data">Data to send along with the connect packet.</param>
+            <param name="channelLimit">The maximum number of channels, or 0 to use the maximum possible (255).</param>
+            <returns>
+                The new peer. This method does not block: the connection will be established
+                when you receive a <see cref="F:ENet.EventType.Connect"/> event.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="address"/> is null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="address"/> is not IPv4.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="address"/>'s port is less than 0 or greater than 65535, and/or
+                <paramref name="channelLimit"/> is less than 0 or greater than 255.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Host.Flush">
+            <summary>
+            Sends queued packets immediately. Normally they are sent when you call <see cref="M:ENet.Host.Service(System.Int32,ENet.Event@)"/>.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Host.Service(System.Int32,ENet.Event@)">
+            <summary>
+            Sends queued outgoing packets, receives incoming packets, and handles connection events.
+            </summary>
+            <param name="timeout">Timeout in milliseconds to wait for an event. For polling, use 0.</param>
+            <param name="event">The event.</param>
+            <returns>True if an event occured, otherwise false.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="timeout"/> is negative.</exception>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Host.SetBandwidthLimit(System.Int32,System.Int32)">
+            <summary>
+            Set the bandwidth limit.
+            </summary>
+            <param name="incomingBandwidth">The maximum incoming rate of transfer, or 0 for no limit.</param>
+            <param name="outgoingBandwidth">The maximum outgoing rate of transfer, or 0 for no limit.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="incomingBandwidth"/> is less than 0, and/or
+                <paramref name="outgoingBandwidth"/> is less than 0.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Host.SetChannelLimit(System.Int32)">
+            <summary>
+            Set the channel limit.
+            </summary>
+            <param name="channelLimit">The maximum number of channels, or 0 to use the maximum possible (255).</param>
+            <exception cref="T:System.InvalidOperationException">The host is not initialized.</exception>
+        </member>
+        <member name="P:ENet.Host.NativeData">
+            <summary>
+            Gets or sets the native C host.
+            </summary>
+        </member>
+        <member name="P:ENet.Host.IsInitialized">
+            <summary>
+            Returns true if the host is initialized.
+            </summary>
+        </member>
+        <member name="T:ENet.Packet">
+            <summary>
+            Contains data received or to be sent.
+            </summary>
+        </member>
+        <member name="M:ENet.Packet.Add(System.Byte)">
+            <summary>
+            Adds a byte to the end of the packet.
+            </summary>
+            <param name="value">The value of the byte.</param>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+            <remarks>
+            Packet resizing behavior is less than optimal. So, in performance-critical applications, it's
+            presently a good idea to initialize the packet with a final byte array instead of using this method.
+            </remarks>
+        </member>
+        <member name="M:ENet.Packet.Clear">
+            <summary>
+            Sets the packet length to zero.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.Contains(System.Byte)">
+            <summary>
+            Checks if the packet contains a particular byte.
+            </summary>
+            <param name="value">The value to look for.</param>
+            <returns>True if the packet contains the byte.</returns>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.CopyTo(System.Byte[],System.Int32)">
+            <summary>
+            Copies part of the packet data into an array.
+            </summary>
+            <param name="array">The array to copy into.</param>
+            <param name="arrayIndex">The target array index at which to begin copying.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="array"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the bytes of the packet.
+            </summary>
+            <returns>An enumerator.</returns>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.IndexOf(System.Byte)">
+            <summary>
+            Checks if the packet contains a particular byte, and if so, returns the index.
+            </summary>
+            <param name="value">The value to look for.</param>
+            <returns>The index of the byte, or -1.</returns>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.Insert(System.Int32,System.Byte)">
+            <summary>
+            Inserts a byte in the packet.
+            </summary>
+            <param name="index">The index to insert at.</param>
+            <param name="value">The value of the byte.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+            <remarks>
+            Packet resizing behavior is less than optimal. So, in performance-critical applications, it's
+            presently a good idea to initialize the packet with a final byte array instead of using this method.
+            </remarks>
+        </member>
+        <member name="M:ENet.Packet.Remove(System.Byte)">
+            <summary>
+            Removes the first byte in the packet with the specified value.
+            </summary>
+            <param name="value">The value of the byte to remove.</param>
+            <returns>True if a byte was found and removed.</returns>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.RemoveAt(System.Int32)">
+            <summary>
+            Removes the byte at the specified index from the packet.
+            </summary>
+            <param name="index">The index of the byte to remove.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.#ctor(ENet.Native.ENetPacket*)">
+            <summary>
+            Initializes a new packet based on a native C packet.
+            </summary>
+            <param name="packet">The native C packet.</param>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.Byte[])">
+            <summary>
+            Initializes a new packet.
+            </summary>
+            <param name="data">The data the packet will contain.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.Byte[],ENet.PacketFlags)">
+            <summary>
+            Initializes a new packet, with the given flags.
+            </summary>
+            <param name="data">The data the packet will contain.</param>
+            <param name="flags">The flags the packet will use.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Initializes a new packet from data, at the given offset, and of the given length.
+            </summary>
+            <param name="data">An array containing the data the packet will contain.</param>
+            <param name="offset">The offset of the first byte of data.</param>
+            <param name="length">The length of the data.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> and/or <paramref name="length"/> are out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.Byte[],System.Int32,System.Int32,ENet.PacketFlags)">
+            <summary>
+            Initializes a new packet from data at the given offset, of the given length, and with the given flags.
+            </summary>
+            <param name="data">An array containing the data the packet will contain.</param>
+            <param name="offset">The offset of the first byte of data.</param>
+            <param name="length">The length of the data.</param>
+            <param name="flags">The flags the packet will use.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> and/or <paramref name="length"/> are out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.IntPtr,System.Int32)">
+            <summary>
+            Initializes a new packet from data, of the given length.
+            </summary>
+            <param name="data">A pointer to the first byte of data.</param>
+            <param name="length">The length of the data.</param>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.Initialize(System.IntPtr,System.Int32,ENet.PacketFlags)">
+            <summary>
+            Initializes a new packet from data, of the given length, and with the given flags.
+            </summary>
+            <param name="data">A pointer to the first byte of data.</param>
+            <param name="length">The length of the data.</param>
+            <param name="flags">The flags the packet will use.</param>
+            <exception cref="T:System.InvalidOperationException">The packet is already initialized.</exception>
+            <exception cref="T:ENet.ENetException">Packet creation failed.</exception>
+        </member>
+        <member name="M:ENet.Packet.CopyTo(System.Byte[])">
+            <summary>
+            Copies the packet data into an array.
+            </summary>
+            <param name="array">The array to copy into.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="array"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.CopyTo(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Copies part of the packet data into an array.
+            </summary>
+            <param name="array">The array to copy into.</param>
+            <param name="arrayIndex">The target array index at which to begin copying.</param>
+            <param name="count">The number of bytes to copy.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="array"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arrayIndex"/> and/or <paramref name="count"/> are out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.CopyTo(System.Byte[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Copies part of the packet data into an array.
+            </summary>
+            <param name="array">The array to copy into.</param>
+            <param name="arrayIndex">The target array index at which to begin copying.</param>
+            <param name="count">The number of bytes to copy.</param>
+            <param name="sourceIndex">The index into the packet at which to begin copying.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="array"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arrayIndex"/>, <paramref name="count"/>, and/or <paramref name="sourceIndex"/> are out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.GetBytes">
+            <summary>
+            Gets all bytes of the packet data.
+            </summary>
+            <returns>The packet data.</returns>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.Dispose">
+            <summary>
+            Destroys the ENet packet.
+            </summary>
+        </member>
+        <member name="M:ENet.Packet.Resize(System.Int32)">
+            <summary>
+            Resizes the packet.
+            </summary>
+            <param name="length">The new packet length.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Packet.GetUserData">
+            <summary>
+            Gets the user data associated with this packet.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ENet.Packet.GetUserData(System.Object)">
+            <summary>
+            Gets the user data associated with this packet and a particular key.
+            </summary>
+            <param name="key">The key to use.</param>
+            <returns>The user data.</returns>
+        </member>
+        <member name="M:ENet.Packet.SetUserData(System.Object)">
+            <summary>
+            Associates user data with this packet.
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:ENet.Packet.SetUserData(System.Object,System.Object)">
+            <summary>
+            Associates user data with this packet and a particular key.
+            </summary>
+            <param name="key">The key to use.</param>
+            <param name="value">The user data.</param>
+        </member>
+        <member name="P:ENet.Packet.Item(System.Int32)">
+            <summary>
+            Gets or sets the byte at the specified index.
+            </summary>
+            <param name="index">The index of the byte.</param>
+            <returns>The byte value.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="P:ENet.Packet.Data">
+            <summary>
+            Gets a pointer to the packet data.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="P:ENet.Packet.Flags">
+            <summary>
+            Gets the packet flags.
+            </summary>
+        </member>
+        <member name="P:ENet.Packet.Length">
+            <summary>
+            Gets the length of the packet.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized, or is 2GB or larger.</exception>
+        </member>
+        <member name="P:ENet.Packet.NativeData">
+            <summary>
+            Gets or sets the native C packet.
+            </summary>
+        </member>
+        <member name="P:ENet.Packet.ReferenceCount">
+            <summary>
+            Gets or sets the reference count.
+            If you want to keep a packet around that you are giving to ENet, increment this.
+            When you are finished with it, decrement this and call Dispose().
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">The value may not be negative.</exception>
+            <exception cref="T:System.InvalidOperationException">The packet is not initialized.</exception>
+        </member>
+        <member name="P:ENet.Packet.IsInitialized">
+            <summary>
+            Returns true if the packet is initialized.
+            </summary>
+        </member>
+        <member name="E:ENet.Packet.Freed">
+            <summary>
+            Occurs when ENet is finished with a packet and it is about to be freed from memory.
+            </summary>
+        </member>
+        <member name="T:ENet.EventType">
+            <summary>
+            Specifies types of events that can occur.
+            </summary>
+        </member>
+        <member name="F:ENet.EventType.None">
+            <summary>
+            Nothing happened.
+            </summary>
+        </member>
+        <member name="F:ENet.EventType.Connect">
+            <summary>
+            A peer has connected.
+            </summary>
+        </member>
+        <member name="F:ENet.EventType.Disconnect">
+            <summary>
+            A peer has disconnected.
+            </summary>
+        </member>
+        <member name="F:ENet.EventType.Receive">
+            <summary>
+            A packet has been received.
+            </summary>
+        </member>
+        <member name="T:ENet.PeerState">
+            <summary>
+            Enumerates the possible peer states.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Uninitialized">
+            <summary>
+            The peer is uninitialized.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Disconnected">
+            <summary>
+            The peer is disconnected.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Connecting">
+            <summary>
+            Connecting to the peer.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.AcknowledgingConnect">
+            <summary>
+            Connection is being acknowledged.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.ConnectionPending">
+            <summary>
+            A connection is pending.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.ConnectionSucceeded">
+            <summary>
+            A connection has been established.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Connected">
+            <summary>
+            The peer is connected.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.DisconnectingLater">
+            <summary>
+            The peer will be disconnected once all packets are sent.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Disconnecting">
+            <summary>
+            The peer is disconnecting.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.AcknowledgingDisconnect">
+            <summary>
+            Disconnection is being acknowledged.
+            </summary>
+        </member>
+        <member name="F:ENet.PeerState.Zombie">
+            <summary>
+            The peer is a zombie.
+            </summary>
+        </member>
+        <member name="T:ENet.Peer">
+            <summary>
+            Represents a connection with another computer.
+            </summary>
+        </member>
+        <member name="M:ENet.Peer.#ctor(ENet.Native.ENetPeer*)">
+            <summary>
+            Initializes a peer based on a native C peer.
+            </summary>
+            <param name="peer">The native C peer.</param>
+        </member>
+        <member name="M:ENet.Peer.ConfigureThrottle(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Configures throttling. ENet measures lag over an interval, and alters its throttle parameter
+            based on individual packet round-trip times versus the mean. This parameter controls the probability
+            ENet will drop an unreliable packet. If a packet has a smaller round-trip time than average, the parameter
+            is increased by the acceleration term, causing less packets to be dropped. If a packet has a larger
+            round-trip time than average, the parameter is decreased by the deceleration term, causing more packets
+            to be dropped.
+            </summary>
+            <param name="interval">The interval in milliseconds over which to measure. The default is 5000.</param>
+            <param name="acceleration">Acceleration rate. The default value is 2, and the limit is 32.</param>
+            <param name="deceleration">Deceleration rate. The default value is 2, and the limit is 32.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="interval"/> is negative,
+                <paramref name="acceleration"/> is less than 0 or greater than 32, and/or
+                <paramref name="deceleration"/> is less than 0 or greater than 32.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.Disconnect(System.Int32)">
+            <summary>
+            Gracefully disconnects from the remote computer.
+            A disconnect event occurs.
+            </summary>
+            <param name="data">Data to send along with the disconnect packet.</param>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.DisconnectLater(System.Int32)">
+            <summary>
+            Gracefully disconnects from the remote computer after all outgoing data has been sent.
+            A disconnect event occurs.
+            </summary>
+            <param name="data">Data to send along with the disconnect packet.</param>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.DisconnectNow(System.Int32)">
+            <summary>
+            Immediately disconnects from the remote computer.
+            A disconnect packet is sent unreliably. No event occurs.
+            </summary>
+            <param name="data">Data to send along with the disconnect packet.</param>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.Ping">
+            <summary>
+            Sends a ping to the remote computer.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.Reset">
+            <summary>
+            Resets the connection to the remote computer.
+            No disconnect packets are sent, and no event occurs.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.GetRemoteAddress">
+            <summary>
+            Gets the remote address.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.Receive(System.Byte@,ENet.Packet@)">
+            <summary>
+            Dequeue a received packet.
+            </summary>
+            <param name="channelID">The ID of the channel the packet was sent on.</param>
+            <param name="packet">The received packet.</param>
+            <returns>True if a packet was dequeued, or false if there are no more packets.</returns>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+        </member>
+        <member name="M:ENet.Peer.Send(System.Byte,System.Byte[],ENet.PacketFlags)">
+            <summary>
+            Enqueues a packet for sending using the given data and flags.
+            </summary>
+            <param name="channelID">The ID of the channel to send on.</param>
+            <param name="data">The data to send.</param>
+            <param name="flags">The packet flags.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Peer.Send(System.Byte,System.Byte[],System.Int32,System.Int32,ENet.PacketFlags)">
+            <summary>
+            Enqueues a packet for sending using the given data, offsets, length, and flags.
+            </summary>
+            <param name="channelID">The ID of the channel to send on.</param>
+            <param name="data">The array containing the data to send.</param>
+            <param name="offset">The index of the first byte of data.</param>
+            <param name="length">The length of the data.</param>
+            <param name="flags">The packet flags.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> and/or <paramref name="length"/> are out of range.</exception>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Peer.Send(System.Byte,ENet.Packet)">
+            <summary>
+            Enqueues a packet for sending.
+            </summary>
+            <param name="channelID">The ID of the channel to send on.</param>
+            <param name="packet">The packet to send.</param>
+            <returns>True if the packet was enqueued successfully, or false if an error occured.</returns>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+            <exception cref="T:ENet.ENetException">An error occured.</exception>
+        </member>
+        <member name="M:ENet.Peer.SetPingInterval(System.Int32)">
+            <summary>
+            Sets the interval between pings.
+            ENet will automatically send pings when it hasn't received anything from the remote computer.
+            </summary>
+            <param name="interval">
+                The interval in milliseconds between pings, or 0 to use the default (500).
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="interval"/> is negative.</exception>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+            <exception cref="T:System.NotSupportedException">This method requires ENet 1.3.4 or newer.</exception>
+        </member>
+        <member name="M:ENet.Peer.SetTimeouts(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sets timeouts for a response from the remote computer acknowledging its receipt of a reliable packet.
+            When the timeouts are exceeded, a disconnect event occurs.
+            </summary>
+            <param name="retryLimit">
+                The number of retries to make before considering the minimum timeout time.
+                The default value is 5.
+            </param>
+            <param name="retryMinimumTime">
+                The minimum time in milliseconds to allow for retrying, or 0 to use the default (5000).
+            </param>
+            <param name="maximumTime">
+                The maximum time in milliseconds to wait regardless of the number of retries, or 0 to use the default (30000).
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="retryLimit"/> is negative or greater than 20,
+                <paramref name="retryMinimumTime"/> is negative, and/or
+                <paramref name="maximumTime"/> is negative.
+             </exception>
+            <exception cref="T:System.InvalidOperationException">The peer is not initialized.</exception>
+            <exception cref="T:System.NotSupportedException">This method requires ENet 1.3.4 or newer.</exception>
+        </member>
+        <member name="P:ENet.Peer.Host">
+            <summary>
+            Gets the host associated with this peer.
+            </summary>
+        </member>
+        <member name="P:ENet.Peer.NativeData">
+            <summary>
+            Gets or sets the native C peer.
+            </summary>
+        </member>
+        <member name="P:ENet.Peer.State">
+            <summary>
+            Gets the peer state.
+            </summary>
+        </member>
+        <member name="P:ENet.Peer.UserData">
+            <summary>
+            Gets or sets the user data associated with this peer.
+            </summary>
+        </member>
+        <member name="P:ENet.Peer.IsInitialized">
+            <summary>
+            Returns true if the peer is initialized.
+            </summary>
+        </member>
+        <member name="T:ENet.PacketFlags">
+            <summary>
+            Specifies outgoing packet transmittion behavior.
+            </summary>
+        </member>
+        <member name="F:ENet.PacketFlags.None">
+            <summary>
+            Sequence the packet, and unless it is larger than the MTU
+            and requires fragmentation, send it unreliably.
+            </summary>
+        </member>
+        <member name="F:ENet.PacketFlags.Reliable">
+            <summary>
+            Send the packet reliably.
+            </summary>
+        </member>
+        <member name="F:ENet.PacketFlags.Unsequenced">
+            <summary>
+            Allow the packet to arrive out-of-order.
+            </summary>
+        </member>
+        <member name="F:ENet.PacketFlags.NoAllocate">
+            <summary>
+            Let the application, not ENet, handle memory allocation for the packet.
+            </summary>
+        </member>
+        <member name="F:ENet.PacketFlags.UnreliableFragment">
+            <summary>
+            Even if an unreliable packet is larger than the MTU
+            and requires fragmentation, send it unreliably.
+            </summary>
+        </member>
+        <member name="T:ENet.Event">
+            <summary>
+            Represents an event from the <see cref="M:ENet.Host.Service(System.Int32,ENet.Event@)"/> method.
+            </summary>
+        </member>
+        <member name="M:ENet.Event.#ctor(ENet.Native.ENetEvent)">
+            <summary>
+            Initializes an event based on a native C event.
+            </summary>
+            <param name="event">The native C event.</param>
+        </member>
+        <member name="P:ENet.Event.ChannelID">
+            <summary>
+            Gets the channel ID.
+            </summary>
+        </member>
+        <member name="P:ENet.Event.Data">
+            <summary>
+            Gets the data associated with the event.
+            </summary>
+        </member>
+        <member name="P:ENet.Event.NativeData">
+            <summary>
+            Gets or sets the native C event.
+            </summary>
+        </member>
+        <member name="P:ENet.Event.Packet">
+            <summary>
+            Gets the packet associated with the event.
+            </summary>
+        </member>
+        <member name="P:ENet.Event.Peer">
+            <summary>
+            Gets the peer associated with the event.
+            </summary>
+        </member>
+        <member name="P:ENet.Event.Type">
+            <summary>
+            Gets the event type.
+            </summary>
+        </member>
+        <member name="T:ENet.PacketFreeCallback">
+            <summary>
+            Called when ENet is finished with a packet and it is about to be freed from memory.
+            </summary>
+            <param name="packet">The packet.</param>
+        </member>
+    </members>
+</doc>

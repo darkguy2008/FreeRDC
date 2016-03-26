@@ -92,6 +92,13 @@ namespace FreeRDC.Host
         {
             if (IsExiting)
                 return;
+
+            if (Config["Host"]["TipRunning"] == "1")
+            {
+                trayIcon.ShowBalloonTip(5000, "FreeRDC Host", "FreeRDC is still running. If you want to shut it down do it by using the right-click menu.", ToolTipIcon.Info);
+                Config["Host"]["TipRunning"] = "0";
+            }
+
             Hide();
             e.Cancel = true;
         }

@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>Z:\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -48,8 +48,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Master.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
+      <Project>{73fb8487-173a-4041-93c9-852e1ca473d9}</Project>
+      <Name>FreeRDC.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{66fcd2d8-8ea8-4a59-8e1d-c6d13ab1d51d}</Project>
       <Name>FreeRDC.Network</Name>
