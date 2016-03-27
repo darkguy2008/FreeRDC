@@ -22,6 +22,7 @@ namespace FreeRDC.Client
         public frmRemote()
         {
             InitializeComponent();
+            Text = "FreeRDC - " + HostID;
             bgMonitor = new BackgroundWorker() { WorkerSupportsCancellation = true };
         }
 

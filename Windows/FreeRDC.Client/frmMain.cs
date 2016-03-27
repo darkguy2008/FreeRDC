@@ -30,7 +30,7 @@ namespace FreeRDC.Client
             Program.Client.OnHostConnected += Client_OnHostConnected;
             Program.Client.OnHostError += Client_OnHostError;
 
-            Config = INIFile.Read("Host.ini");
+            Config = INIFile.Read("Client.ini");
             MasterHostname = Config["Master"]["Hostname"];
             MasterPort = int.Parse(Config["Master"]["Port"]);
 
@@ -119,6 +119,15 @@ namespace FreeRDC.Client
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (IsExiting)
+                return;
+
+            if (Config["Client"]["TipRunning"] == "1")
+            {
+                trayIcon.ShowBalloonTip(5000, "FreeRDC Client", "FreeRDC is still running. If you want to shut it down do it by using the right-click menu.", ToolTipIcon.Info);
+                Config["Client"]["TipRunning"] = "0";
+            }
+
             Hide();
             e.Cancel = true;
         }
@@ -152,6 +161,6 @@ namespace FreeRDC.Client
                 Show();
                 Focus();
             }
-        }
+        }        
     }
 }
