@@ -94,12 +94,12 @@ namespace FreeRDC.Network.Client
 
         public void HostKeyDown(KeyEventArgs e)
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_DOWN, e.KeyValue.ToString());
+            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_DOWN, e.KeyValue.ToString() + "," + (e.Shift ? "1" : "0"));
         }
 
         public void HostKeyUp(KeyEventArgs e)
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_UP, e.KeyValue.ToString());
+            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_UP, e.KeyValue.ToString() + "," + (e.Shift ? "1" : "0"));
         }
 
         public void HostMouseDown(int x, int y, MouseButtons buttons)

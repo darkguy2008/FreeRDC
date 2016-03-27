@@ -93,11 +93,15 @@ namespace FreeRDC.Network.Host
                     break;
 
                 case RDCCommandType.HOST_KEY_DOWN:
-                    RDCRemoteKeyboard.Down(short.Parse(cmd.StringData));
+                    short keyCode = short.Parse(cmd.StringData.Split(',')[0]);
+                    bool shift = cmd.StringData.Split(',')[1] == "1";
+                    RDCRemoteKeyboard.Down(keyCode, shift);
                     break;
 
                 case RDCCommandType.HOST_KEY_UP:
-                    RDCRemoteKeyboard.Up(short.Parse(cmd.StringData));
+                    keyCode = short.Parse(cmd.StringData.Split(',')[0]);
+                    shift = cmd.StringData.Split(',')[1] == "1";
+                    RDCRemoteKeyboard.Up(keyCode, shift);
                     break;
             }
         }

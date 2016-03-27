@@ -13,16 +13,20 @@ namespace FreeRDC.Network.Host
         private const int KEYEVENTF_EXTENDEDKEY = 1;
         private const int KEYEVENTF_KEYUP = 2;
 
-        public static void Down(short vKey)
+        public static void Down(short vKey, bool shift)
         {
-            Debug.WriteLine("DOWN " + vKey);
-            keybd_event((byte)vKey, 0, 0, 0);
+            if(vKey == 0x10) // shift key
+                keybd_event((byte)vKey, 0, 0, 0);
+            else
+                keybd_event((byte)vKey, 0, shift ? KEYEVENTF_EXTENDEDKEY : 0, 0);
         }
 
-        public static void Up(short vKey)
+        public static void Up(short vKey, bool shift)
         {
-            Debug.WriteLine("DOWN " + vKey);
-            keybd_event((byte)vKey, 0, KEYEVENTF_KEYUP, 0);
+            if (vKey == 0x10) // shift key
+                keybd_event((byte)vKey, 0, KEYEVENTF_KEYUP, 0);
+            else
+                keybd_event((byte)vKey, 0, shift ? KEYEVENTF_EXTENDEDKEY : 0, 0);
         }
     }
 }
