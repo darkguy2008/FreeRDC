@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System;
 
 namespace FreeRDC.Network.Client
 {
@@ -9,6 +10,7 @@ namespace FreeRDC.Network.Client
     {
         public Peer Connection;
 
+        public delegate void VoidDelegate();
         public delegate void dHostConnection(string hostId);
         public delegate void dHostInfo(int screenWidth, int screenHeight);
         public delegate void dHostScreenRefresh(byte[] imageData);
@@ -17,6 +19,7 @@ namespace FreeRDC.Network.Client
         public event dHostConnection OnHostError;
         public event dHostInfo OnHostInfo;
         public event dHostScreenRefresh OnHostScreenRefresh;
+        public event VoidDelegate OnHostCommandTimeout;
 
         public string HostID { get; set; }
         public string ClientID { get; set; }
@@ -33,6 +36,12 @@ namespace FreeRDC.Network.Client
             base.OnConnected(client);
             Connection = client;
             SendCommand(client, RDCCommandChannel.Command, RDCCommandType.HOST_CONNECT, ClientID, Encoding.UTF8.GetBytes(Password));
+        }
+
+        public override void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommandType cmd, string stringData, byte[] data, PacketFlags flags)
+        {
+            base.SendTimeout(destination, channel, cmd, stringData, data, flags);
+            OnHostCommandTimeout?.Invoke();
         }
 
         public void Connect(string ip, int port, string pass)
@@ -81,6 +90,16 @@ namespace FreeRDC.Network.Client
         public void HostMouseMove(string hostID, Point mousePos)
         {
             SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_MOUSE_MOVE, mousePos.X + "," + mousePos.Y);
+        }
+
+        public void HostKeyDown(KeyEventArgs e)
+        {
+            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_DOWN, e.KeyValue.ToString());
+        }
+
+        public void HostKeyUp(KeyEventArgs e)
+        {
+            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_UP, e.KeyValue.ToString());
         }
 
         public void HostMouseDown(int x, int y, MouseButtons buttons)

@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="HostService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RDCRemoteKeyboard.cs" />
     <Compile Include="RDCRemoteMouse.cs" />
     <Compile Include="RDCScreenCapture.cs" />
   </ItemGroup>

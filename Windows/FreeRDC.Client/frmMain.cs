@@ -73,6 +73,7 @@ namespace FreeRDC.Client
                 frm.Connection = Program.Client.HostConnections.Where(x => x.HostID == hostId).Single();
                 frm.Init();
                 frm.Show();
+                statusLabel.Text = "Ready";
             }));
         }
 

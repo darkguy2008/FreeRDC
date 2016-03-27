@@ -1,4 +1,5 @@
 ﻿using ENet;
+using System;
 using System.Text;
 
 namespace FreeRDC.Network
@@ -17,14 +18,24 @@ namespace FreeRDC.Network
             };
             client.OnDataReceived += (Event evt, byte[] data) =>
             {
-                OnCommandReceived(evt, _serializer.Deserialize<RDCCommand>(Encoding.UTF8.GetString(data)));
+                if (data.Length == 1)
+                    if (data[0] == 0x01) // KeepAlive packet
+                        return;
+                try
+                {
+                    OnCommandReceived(evt, _serializer.Deserialize<RDCCommand>(Encoding.UTF8.GetString(data)));
+                }
+                catch(Exception)
+                {
+                    // TODO: What to do here?
+                }
             };
             client.OnConnectionTimeout += () =>
             {
                 ConnectTimeout();
-            };
+            };            
         }
-
+        
         public virtual void OnConnected(Peer client)
         {
         }

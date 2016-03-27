@@ -1,4 +1,5 @@
 ﻿using ENet;
+using System;
 using System.Text;
 using System.Web.Script.Serialization;
 
@@ -26,7 +27,22 @@ namespace FreeRDC.Network
                 StringData = stringData,
                 ByteData = data
             })), flags);
-            destination.Send((byte)channel, packet);
+            try
+            {
+                destination.Send((byte)channel, packet);
+            }
+            catch(InvalidOperationException)
+            {
+
+            }
+            catch(ENetException)
+            {
+                SendTimeout(destination, channel, cmd, stringData, data, flags);
+            }
+        }
+
+        public virtual void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommandType cmd, string stringData, byte[] data, PacketFlags flags)
+        {
         }
     }
 }

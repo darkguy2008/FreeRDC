@@ -91,6 +91,14 @@ namespace FreeRDC.Network.Host
                 case RDCCommandType.HOST_MOUSE_UP:
                     RDCRemoteMouse.Up(int.Parse(cmd.StringData.Split(',')[0]), int.Parse(cmd.StringData.Split(',')[1]), (MouseButtons)int.Parse(cmd.StringData.Split(',')[2]));
                     break;
+
+                case RDCCommandType.HOST_KEY_DOWN:
+                    RDCRemoteKeyboard.Down(short.Parse(cmd.StringData));
+                    break;
+
+                case RDCCommandType.HOST_KEY_UP:
+                    RDCRemoteKeyboard.Up(short.Parse(cmd.StringData));
+                    break;
             }
         }
 

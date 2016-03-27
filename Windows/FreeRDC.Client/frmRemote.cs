@@ -22,7 +22,7 @@ namespace FreeRDC.Client
         public frmRemote()
         {
             InitializeComponent();
-            bgMonitor = new BackgroundWorker();
+            bgMonitor = new BackgroundWorker() { WorkerSupportsCancellation = true };
         }
 
         public void Init()
@@ -31,9 +31,16 @@ namespace FreeRDC.Client
             HostScreenHeight = 0;
             Connection.OnHostInfo += Connection_OnHostInfo;
             Connection.OnHostScreenRefresh += Connection_OnHostScreenRefresh;
+            Connection.OnHostCommandTimeout += Connection_OnHostCommandTimeout;
             bgMonitor.DoWork += BgMonitor_DoWork;
             bgMonitor.RunWorkerAsync();
             Connection.ScreenRefresh();
+        }
+
+        private void Connection_OnHostCommandTimeout()
+        {
+            MessageBox.Show("Connection closed");
+            Close();
         }
 
         private void Connection_OnHostScreenRefresh(byte[] imageData)
@@ -56,7 +63,7 @@ namespace FreeRDC.Client
 
         private void BgMonitor_DoWork(object sender, DoWorkEventArgs e)
         {
-            while(true)
+            while(!bgMonitor.CancellationPending)
             {
                 if (HostScreenWidth == 0 || HostScreenHeight == 0)
                     Connection.GetHostInfo();
@@ -80,6 +87,25 @@ namespace FreeRDC.Client
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             Connection.HostMouseUp(MousePos.X, MousePos.Y, e.Button);
+        }
+
+        private void frmRemote_KeyDown(object sender, KeyEventArgs e)
+        {
+            Connection.HostKeyDown(e);
+        }
+
+        private void frmRemote_KeyUp(object sender, KeyEventArgs e)
+        {
+            Connection.HostKeyUp(e);
+        }
+
+        private void frmRemote_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Connection.Disconnect();
+            bgMonitor.CancelAsync();
+            Main.Show();
+            Main.Focus();
+            Dispose();
         }
     }
 }

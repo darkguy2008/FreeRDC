@@ -9,7 +9,7 @@ namespace FreeRDC.Network
         public Host Client;
         public Peer Connection;
         public bool IsConnected { get { return Connection.State == PeerState.Connected; } }
-        public bool IsConnecting { get { return Connection.State < PeerState.Connected; } }
+        public bool IsConnecting { get { return Connection.State > PeerState.Disconnected && Connection.State < PeerState.Connected; } }
         public int ConnectionTimeout { get; set; }
 
         public delegate void VoidDelegate();
@@ -35,6 +35,8 @@ namespace FreeRDC.Network
             thProcess = new Thread(() =>
             {
                 Connection = Client.Connect(hostname, port, 0, 4);
+                Connection.SetPingInterval(1000);
+                Connection.SetTimeouts(5, 500, 1000);
                 while (IsConnecting || IsConnected)
                 {
                     if(!keepAliveStarted)
@@ -97,6 +99,8 @@ namespace FreeRDC.Network
         {
             Connection.DisconnectNow(-1);
             thKeepAlive.Abort();
+            thTimeout.Abort();
+            thProcess.Abort();
             keepAliveStarted = false;
             while (IsConnected)
                 Thread.Sleep(100);

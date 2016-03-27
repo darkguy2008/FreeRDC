@@ -21,6 +21,8 @@
         HOST_SCREEN_REFRESH_OK,
         HOST_MOUSE_MOVE,
         HOST_MOUSE_DOWN,
-        HOST_MOUSE_UP
+        HOST_MOUSE_UP,
+        HOST_KEY_DOWN,
+        HOST_KEY_UP
     }
 }
