@@ -5,6 +5,8 @@ using System.Threading;
 using System;
 using FreeRDC.Network.Client;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace FreeRDC.Client
 {
@@ -24,6 +26,13 @@ namespace FreeRDC.Client
             InitializeComponent();
             Text = "FreeRDC - " + HostID;
             bgMonitor = new BackgroundWorker() { WorkerSupportsCancellation = true };
+
+            //Get Current Module
+            ProcessModule objCurrentModule = Process.GetCurrentProcess().MainModule;
+            //Assign callback function each time keyboard process
+            objKeyboardProcess = new LowLevelKeyboardProc(CaptureKey);
+            //Setting Hook of Keyboard Process for current module
+            ptrHook = SetWindowsHookEx(13, objKeyboardProcess, GetModuleHandle(objCurrentModule.ModuleName), 0);
         }
 
         public void Init()
@@ -57,8 +66,10 @@ namespace FreeRDC.Client
             HostScreenWidth = screenWidth;
             HostScreenHeight = screenHeight;
             Invoke(new Action(() => {
-                Width = HostScreenWidth / 2;
-                Height = HostScreenHeight / 2;
+                Text = "FreeRDC - " + HostID;
+                Width = HostScreenWidth;
+                Height = HostScreenHeight + toolStrip1.Height;
+                // TODO: Autoresize to max screen size w/keeping aspect ratio...
             }));
         }
 
@@ -107,6 +118,87 @@ namespace FreeRDC.Client
             Main.Show();
             Main.Focus();
             Dispose();
+        }
+
+        // http://stackoverflow.com/questions/13324059/suppress-certain-windows-keyboard-shortcuts
+        // http://geekswithblogs.net/aghausman/archive/2009/04/26/disable-special-keys-in-win-app-c.aspx
+
+        // Structure contain information about low-level keyboard input event
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KBDLLHOOKSTRUCT
+        {
+            public Keys key;
+            public int scanCode;
+            public KbdHookFlags flags;
+            public int time;
+            public IntPtr extra;
+        }
+
+        //System level functions to be used for hook and unhook keyboard input
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int id, LowLevelKeyboardProc callback, IntPtr hMod, uint dwThreadId);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hook);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hook, int nCode, IntPtr wp, IntPtr lp);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string name);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern short GetAsyncKeyState(Keys key);
+
+        //Declaring Global objects
+        private IntPtr ptrHook;
+        private LowLevelKeyboardProc objKeyboardProcess;
+
+        // http://stackoverflow.com/questions/2075811/how-do-i-use-low-level-8-bit-flags-as-conditionals
+        [Flags]
+        enum KbdHookFlags
+        {
+            Extended = 0x01,
+            Injected = 0x10,
+            AltPressed = 0x20,
+            Released = 0x80
+        }
+
+        // http://stackoverflow.com/questions/3213606/how-to-suppress-task-switch-keys-winkey-alt-tab-alt-esc-ctrl-esc-using-low
+        private IntPtr CaptureKey(int nCode, IntPtr wp, IntPtr lp)
+        {
+            if (!Focused || !tbSpecialKeys.Checked)
+                return CallNextHookEx(ptrHook, nCode, wp, lp);
+
+            if (nCode >= 0)
+            {
+                KBDLLHOOKSTRUCT objKeyInfo = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lp, typeof(KBDLLHOOKSTRUCT));
+                if (objKeyInfo.key == Keys.RWin || objKeyInfo.key == Keys.LWin)
+                {
+                    if(!objKeyInfo.flags.HasFlag(KbdHookFlags.Released))
+                        Connection.HostKeyDown(new KeyEventArgs(Keys.LWin));
+                    else
+                        Connection.HostKeyUp(new KeyEventArgs(Keys.LWin));
+                    return (IntPtr)1;
+                }
+
+                if (objKeyInfo.key == Keys.Tab)
+                {
+                    if (!objKeyInfo.flags.HasFlag(KbdHookFlags.Released))
+                        Connection.HostKeyDown(new KeyEventArgs(Keys.Tab));
+                    else
+                        Connection.HostKeyUp(new KeyEventArgs(Keys.Tab));
+                    return (IntPtr)1;
+                }
+
+                if (objKeyInfo.key == Keys.Escape)
+                {
+                    if (!objKeyInfo.flags.HasFlag(KbdHookFlags.Released))
+                        Connection.HostKeyDown(new KeyEventArgs(Keys.Escape));
+                    else
+                        Connection.HostKeyUp(new KeyEventArgs(Keys.Escape));
+                    return (IntPtr)1;
+                }
+            }
+            return CallNextHookEx(ptrHook, nCode, wp, lp);
         }
     }
 }

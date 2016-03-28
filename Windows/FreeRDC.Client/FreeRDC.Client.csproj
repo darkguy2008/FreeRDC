@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Resources\icnSpecialKeys.png" />
     <None Include="Resources\appIcon.ico" />
     <None Include="Resources\logo.png" />
     <None Include="Resources\adSpace.png" />
