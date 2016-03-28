@@ -1,5 +1,4 @@
 ﻿using ENet;
-using System;
 using System.Threading;
 
 namespace FreeRDC.Network
@@ -13,10 +12,11 @@ namespace FreeRDC.Network
         public int ConnectionTimeout { get; set; }
 
         public delegate void VoidDelegate();
-        public delegate void onConnected(Peer connection);
+        public delegate void onConnection(Peer connection);
         public delegate void onDataReceived(Event evt, byte[] data);
         public event onDataReceived OnDataReceived;
-        public event onConnected OnConnected;
+        public event onConnection OnConnected;
+        public event onConnection OnDisconnected;
         public event VoidDelegate OnConnectionTimeout;
         private Thread thTimeout;
         private Thread thProcess;
@@ -75,6 +75,10 @@ namespace FreeRDC.Network
                                     byte[] data = evt.Packet.GetBytes();
                                     evt.Packet.Dispose();
                                     OnDataReceived?.Invoke(evt, data);
+                                    break;
+
+                                case EventType.Disconnect:
+                                    OnDisconnected?.Invoke(evt.Peer);
                                     break;
                             }
                         } while (Client.CheckEvents(out evt));

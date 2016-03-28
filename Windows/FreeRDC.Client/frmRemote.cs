@@ -38,18 +38,18 @@ namespace FreeRDC.Client
             Connection.ScreenRefresh();
         }
 
-        private void Connection_OnHostCommandTimeout()
-        {
-            MessageBox.Show("Connection closed");
-            Close();
-        }
-
         private void Connection_OnHostScreenRefresh(byte[] imageData)
         {
             Connection.ScreenRefresh();
             MemoryStream ms = new MemoryStream(imageData);
             Image img = Image.FromStream(ms, false, false);
             pictureBox1.Image = img;
+        }
+
+        private void Connection_OnHostCommandTimeout()
+        {
+            MessageBox.Show("Connection closed");
+            Close();
         }
 
         private void Connection_OnHostInfo(int screenWidth, int screenHeight)

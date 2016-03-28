@@ -23,6 +23,8 @@
         HOST_MOUSE_DOWN,
         HOST_MOUSE_UP,
         HOST_KEY_DOWN,
-        HOST_KEY_UP
+        HOST_KEY_UP,
+        MASTER_NOTICE,
+        HOST_ERROR
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FreeRDC.Network.Master
 {
@@ -11,14 +12,14 @@ namespace FreeRDC.Network.Master
         private MasterDB _db;
         private object _mutex = new object();
 
-        public class ConnectedHost
+        public class ConnectedHost : CommandClient
         {
             public string HostID { get; set; }
             public string HardwareID { get; set; }
             public Peer Connection { get; set; }
         }
 
-        public class ConnectedClient
+        public class ConnectedClient : CommandClient
         {
             public string ClientID { get; set; }
             public string HardwareID { get; set; }
@@ -30,6 +31,18 @@ namespace FreeRDC.Network.Master
             connections.RemoveAll(x => x == client);
             hosts.RemoveAll(x => x.Connection == client);
             clients.RemoveAll(x => x.Connection == client);
+        }
+
+        public void SetNotice(string notice)
+        {
+            RDCCommand cmdNotice = new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Auth, // TODO: Change channel
+                Command = RDCCommandType.MASTER_NOTICE,
+                Data = notice
+            };
+            Parallel.ForEach(hosts, (x) => { x.SendCommand(x.Connection, cmdNotice); });
+            Parallel.ForEach(clients, (x) => { x.SendCommand(x.Connection, cmdNotice); });
         }
 
         public List<Peer> connections = new List<Peer>();

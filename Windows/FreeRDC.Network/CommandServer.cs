@@ -1,5 +1,4 @@
 ﻿using ENet;
-using System;
 using System.Text;
 
 namespace FreeRDC.Network

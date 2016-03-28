@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace FreeRDC.Network.Host
 {
@@ -26,7 +24,7 @@ namespace FreeRDC.Network.Host
             if (vKey == 0x10) // shift key
                 keybd_event((byte)vKey, 0, KEYEVENTF_KEYUP, 0);
             else
-                keybd_event((byte)vKey, 0, shift ? KEYEVENTF_EXTENDEDKEY : 0, 0);
+                keybd_event((byte)vKey, 0, KEYEVENTF_KEYUP | (shift ? KEYEVENTF_EXTENDEDKEY : 0), 0);
         }
     }
 }

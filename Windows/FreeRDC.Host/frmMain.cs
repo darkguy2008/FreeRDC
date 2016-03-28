@@ -33,7 +33,9 @@ namespace FreeRDC.Host
             Program.Host.OnMasterConnecting += Host_OnConnecting;
             Program.Host.OnMasterConnected += Host_OnMasterConnected;
             Program.Host.OnClientConnected += Host_OnClientConnected;
+            Program.Host.OnClientDisconnected += Host_OnClientDisconnected;
             Program.Host.OnMasterConnectionError += Host_OnMasterConnectionError;
+            Program.Host.OnMasterNotice += Host_OnMasterNotice;
 
             Config = INIFile.Read("Host.ini");
             HostPassword = Config["Host"]["Password"];
@@ -45,6 +47,21 @@ namespace FreeRDC.Host
 
             bgServices = new BackgroundWorker() { WorkerSupportsCancellation = true };
             bgServices.DoWork += BgServices_DoWork;
+        }
+
+        private void Host_OnClientDisconnected(string clientId)
+        {
+            Invoke(new Action(() => {
+                Show();
+                Focus();
+            }));
+        }
+
+        private void Host_OnMasterNotice(string notice)
+        {
+            Invoke(new Action(() => {
+                lbNotice.Text = notice;
+            }));
         }
 
         private void Host_OnMasterConnectionError()

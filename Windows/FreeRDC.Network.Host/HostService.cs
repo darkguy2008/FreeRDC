@@ -1,31 +1,46 @@
 ﻿using ENet;
 using FreeRDC.Common.Hardware;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace FreeRDC.Network.Host
 {
     public class HostService : CommandClient
     {
+        public class ConnectedClient
+        {
+            public string ClientID { get; set; }
+            public Peer Connection { get; set; }
+        }
+
         public delegate void VoidDelegate();
+        public delegate void ConnectionDelegate(Peer client);
         public delegate void dMasterConnected(string hostId);
+        public delegate void dClientDisconnected(string clientId);
+        public delegate void NoticeDelegate(string notice);
         public event VoidDelegate OnInitializing;
         public event VoidDelegate OnInitialized;
         public event VoidDelegate OnMasterConnecting;
         public event dMasterConnected OnMasterConnected;
         public event VoidDelegate OnClientConnected;
+        public event dClientDisconnected OnClientDisconnected;
         public event VoidDelegate OnMasterConnectionError;
+        public event NoticeDelegate OnMasterNotice;
 
         public string HostID { get; set; }
         public string Password { get; set; }
         public string Fingerprint { get; set; }
+        public List<ConnectedClient> Clients { get; set; }
 
         private bool _isInitialized = false;
+        private object _mutex = new object();
         private RDCScreenCapture _screencap = new RDCScreenCapture();
 
         public void Init()
         {
+            Clients = new List<ConnectedClient>();
             OnInitializing?.Invoke();
             if(!_isInitialized)
                 Fingerprint = HWID.GenerateFingerprint();
@@ -37,6 +52,17 @@ namespace FreeRDC.Network.Host
         {
             OnMasterConnecting?.Invoke();
             base.Connect(hostname, port);
+        }
+
+        public override void OnDisconnected(Peer client)
+        {
+            ConnectedClient c = Clients.Where(x => x.Connection == client).SingleOrDefault();
+            if (c != null)
+            {
+                OnClientDisconnected?.Invoke(c.ClientID);
+                Clients.Remove(c);
+            }
+            base.OnDisconnected(client);
         }
 
         public override void ConnectTimeout()
@@ -51,59 +77,129 @@ namespace FreeRDC.Network.Host
             switch (cmd.Command)
             {
                 case RDCCommandType.MASTER_AUTH:
-                    SendCommand(evt.Peer, RDCCommandChannel.Auth, RDCCommandType.MASTER_AUTH_HOST, Fingerprint);
+                    SendCommand(evt.Peer, new RDCCommand()
+                    {
+                        Channel = RDCCommandChannel.Auth,
+                        Command = RDCCommandType.MASTER_AUTH_HOST,
+                        Data = Fingerprint
+                    });
                     break;
 
                 case RDCCommandType.MASTER_AUTH_HOST_OK:
-                    HostID = cmd.StringData;
-                    OnMasterConnected?.Invoke(cmd.StringData);
+                    HostID = (string)cmd.Data;
+                    OnMasterConnected?.Invoke(HostID);
+                    break;
+
+                case RDCCommandType.MASTER_NOTICE:
+                    OnMasterNotice?.Invoke((string)cmd.Data);
                     break;
 
                 case RDCCommandType.HOST_CONNECT:
-                    string clientId = cmd.StringData;
-                    string pass = Encoding.UTF8.GetString(cmd.ByteData);
+                    string clientId = cmd.SourceID;
+                    string pass = (string)cmd.Data;
                     if (pass == Password)
                     {
                         OnClientConnected?.Invoke();
-                        SendCommand(evt.Peer, RDCCommandChannel.Auth, RDCCommandType.HOST_CONNECT_OK, clientId);
+                        SendCommand(evt.Peer, new RDCCommand()
+                        {
+                            Channel = RDCCommandChannel.Auth,
+                            Command = RDCCommandType.HOST_CONNECT_OK
+                        });
+                        lock(_mutex)
+                        {
+                            if (Clients.Where(x => x.ClientID == clientId).SingleOrDefault() == null)
+                                Clients.Add(new ConnectedClient()
+                                {
+                                    ClientID = clientId,
+                                    Connection = evt.Peer
+                                });
+                        }              
                     }
                     else
-                        SendCommand(evt.Peer, RDCCommandChannel.Auth, RDCCommandType.HOST_CONNECT_ERROR, clientId);
+                        SendCommand(evt.Peer, new RDCCommand()
+                        {
+                            Channel = RDCCommandChannel.Auth,
+                            Command = RDCCommandType.HOST_CONNECT_ERROR
+                        });
                     break;
 
                 case RDCCommandType.HOST_GETINFO:
-                    SendCommand(evt.Peer, RDCCommandChannel.Command, RDCCommandType.HOST_NEWINFO, Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height);
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    SendCommand(evt.Peer, new RDCCommand()
+                    {
+                        Channel = RDCCommandChannel.Command,
+                        Command = RDCCommandType.HOST_NEWINFO,
+                        SourceID = HostID,
+                        Data = new RDCCommandPackets.HostInfoPacket()
+                        {
+                            ScreenWidth = Screen.PrimaryScreen.Bounds.Width,
+                            ScreenHeight = Screen.PrimaryScreen.Bounds.Height,
+                        }
+                    });
                     break;
 
                 case RDCCommandType.HOST_SCREEN_REFRESH:
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
                     MemoryStream ms = _screencap.Capture3();
-                    SendCommand(evt.Peer, RDCCommandChannel.Display, RDCCommandType.HOST_SCREEN_REFRESH_OK, HostID, ms.ToArray());
+                    SendCommand(evt.Peer, new RDCCommand()
+                    {
+                        Channel = RDCCommandChannel.Display,
+                        Command = RDCCommandType.HOST_SCREEN_REFRESH_OK,
+                        SourceID = HostID,
+                        Buffer = ms.ToArray()
+                    });
                     break;
 
                 case RDCCommandType.HOST_MOUSE_MOVE:
-                    RDCRemoteMouse.Move(int.Parse(cmd.StringData.Split(',')[0]), int.Parse(cmd.StringData.Split(',')[1]));
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    RDCCommandPackets.HostMouseEvent mouseEvent = cmd.CastDataAs<RDCCommandPackets.HostMouseEvent>();
+                    RDCRemoteMouse.Move(mouseEvent.MouseX, mouseEvent.MouseY);
                     break;
 
                 case RDCCommandType.HOST_MOUSE_DOWN:
-                    RDCRemoteMouse.Down(int.Parse(cmd.StringData.Split(',')[0]), int.Parse(cmd.StringData.Split(',')[1]), (MouseButtons)int.Parse(cmd.StringData.Split(',')[2]));
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    mouseEvent = mouseEvent = cmd.CastDataAs<RDCCommandPackets.HostMouseEvent>();
+                    RDCRemoteMouse.Down(mouseEvent.MouseX, mouseEvent.MouseY, mouseEvent.Buttons);
                     break;
 
                 case RDCCommandType.HOST_MOUSE_UP:
-                    RDCRemoteMouse.Up(int.Parse(cmd.StringData.Split(',')[0]), int.Parse(cmd.StringData.Split(',')[1]), (MouseButtons)int.Parse(cmd.StringData.Split(',')[2]));
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    mouseEvent = mouseEvent = cmd.CastDataAs<RDCCommandPackets.HostMouseEvent>();
+                    RDCRemoteMouse.Up(mouseEvent.MouseX, mouseEvent.MouseY, mouseEvent.Buttons);
                     break;
 
                 case RDCCommandType.HOST_KEY_DOWN:
-                    short keyCode = short.Parse(cmd.StringData.Split(',')[0]);
-                    bool shift = cmd.StringData.Split(',')[1] == "1";
-                    RDCRemoteKeyboard.Down(keyCode, shift);
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    RDCCommandPackets.HostKeyEvent keyEvent = cmd.CastDataAs<RDCCommandPackets.HostKeyEvent>();
+                    RDCRemoteKeyboard.Down((short)keyEvent.KeyCode, keyEvent.Shift);
                     break;
 
                 case RDCCommandType.HOST_KEY_UP:
-                    keyCode = short.Parse(cmd.StringData.Split(',')[0]);
-                    shift = cmd.StringData.Split(',')[1] == "1";
-                    RDCRemoteKeyboard.Up(keyCode, shift);
+                    if (!ValidateClient(cmd.SourceID, evt.Peer))
+                        return;
+                    keyEvent = cmd.CastDataAs<RDCCommandPackets.HostKeyEvent>();
+                    RDCRemoteKeyboard.Up((short)keyEvent.KeyCode, keyEvent.Shift);
                     break;
             }
+        }
+
+        private bool ValidateClient(string clientID, Peer connection)
+        {
+            if (Clients.Where(x => x.ClientID == clientID && x.Connection == connection).SingleOrDefault() != null)
+                return true;
+            SendCommand(connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Auth,
+                Command = RDCCommandType.HOST_ERROR,
+                SourceID = HostID
+            });
+            return false;
         }
 
         public void Shutdown()

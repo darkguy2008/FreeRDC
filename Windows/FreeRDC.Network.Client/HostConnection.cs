@@ -1,8 +1,6 @@
 ﻿using ENet;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System;
 
 namespace FreeRDC.Network.Client
 {
@@ -35,14 +33,22 @@ namespace FreeRDC.Network.Client
         {
             base.OnConnected(client);
             Connection = client;
-            SendCommand(client, RDCCommandChannel.Command, RDCCommandType.HOST_CONNECT, ClientID, Encoding.UTF8.GetBytes(Password));
+            SendCommand(client, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_CONNECT,
+                SourceID = ClientID,
+                Data = Password
+            });
         }
 
-        public override void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommandType cmd, string stringData, byte[] data, PacketFlags flags)
+        public override void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommand cmd)
         {
-            base.SendTimeout(destination, channel, cmd, stringData, data, flags);
+            base.SendTimeout(destination, channel, cmd);
             OnHostCommandTimeout?.Invoke();
         }
+
+        // TODO: public override void ConnectTimeout()
 
         public void Connect(string ip, int port, string pass)
         {
@@ -53,12 +59,22 @@ namespace FreeRDC.Network.Client
 
         public void GetHostInfo()
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_GETINFO, null);
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_GETINFO,
+                SourceID = ClientID
+            });
         }
 
         public void ScreenRefresh()
         {
-            SendCommand(Connection, RDCCommandChannel.Display, RDCCommandType.HOST_SCREEN_REFRESH, null);
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Display,
+                Command = RDCCommandType.HOST_SCREEN_REFRESH,
+                SourceID = ClientID
+            });
         }
 
         public override void OnCommandReceived(Event evt, RDCCommand cmd)
@@ -75,13 +91,12 @@ namespace FreeRDC.Network.Client
                     break;
 
                 case RDCCommandType.HOST_NEWINFO:
-                    int w = int.Parse(cmd.StringData.Split('x')[0]);
-                    int h = int.Parse(cmd.StringData.Split('x')[1]);
-                    OnHostInfo?.Invoke(w, h);
+                    RDCCommandPackets.HostInfoPacket info = cmd.CastDataAs<RDCCommandPackets.HostInfoPacket>();
+                    OnHostInfo?.Invoke(info.ScreenWidth, info.ScreenHeight);
                     break;
 
                 case RDCCommandType.HOST_SCREEN_REFRESH_OK:
-                    OnHostScreenRefresh?.Invoke(cmd.ByteData);
+                    OnHostScreenRefresh?.Invoke(cmd.Buffer);
                     break;
 
             }
@@ -89,27 +104,94 @@ namespace FreeRDC.Network.Client
 
         public void HostMouseMove(string hostID, Point mousePos)
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_MOUSE_MOVE, mousePos.X + "," + mousePos.Y);
-        }
-
-        public void HostKeyDown(KeyEventArgs e)
-        {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_DOWN, e.KeyValue.ToString() + "," + (e.Shift ? "1" : "0"));
-        }
-
-        public void HostKeyUp(KeyEventArgs e)
-        {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_KEY_UP, e.KeyValue.ToString() + "," + (e.Shift ? "1" : "0"));
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_MOUSE_MOVE,
+                SourceID = ClientID,
+                Data = new RDCCommandPackets.HostMouseEvent()
+                {
+                    MouseX = mousePos.X,
+                    MouseY = mousePos.Y,
+                    Buttons = MouseButtons.None
+                }
+            });
         }
 
         public void HostMouseDown(int x, int y, MouseButtons buttons)
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_MOUSE_DOWN, string.Format("{0},{1},{2}", x, y, (int)buttons));
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_MOUSE_DOWN,
+                SourceID = ClientID,
+                Data = new RDCCommandPackets.HostMouseEvent()
+                {
+                    MouseX = x,
+                    MouseY = y,
+                    Buttons = buttons
+                }
+            });
         }
 
         public void HostMouseUp(int x, int y, MouseButtons buttons)
         {
-            SendCommand(Connection, RDCCommandChannel.Command, RDCCommandType.HOST_MOUSE_UP, string.Format("{0},{1},{2}", x, y, (int)buttons));
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_MOUSE_UP,
+                SourceID = ClientID,
+                Data = new RDCCommandPackets.HostMouseEvent()
+                {
+                    MouseX = x,
+                    MouseY = y,
+                    Buttons = buttons
+                }
+            });
+        }
+
+        public void HostKeyDown(KeyEventArgs e)
+        {
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_KEY_DOWN,
+                SourceID = ClientID,
+                Data = new RDCCommandPackets.HostKeyEvent()
+                {
+                    Alt = e.Alt,
+                    Control = e.Control,
+                    Handled = e.Handled,
+                    KeyCode = e.KeyCode,
+                    KeyData = e.KeyData,
+                    KeyValue = e.KeyValue,
+                    Modifiers = e.Modifiers,
+                    Shift = e.Shift,
+                    SuppressKeyPress = e.SuppressKeyPress
+                }
+            });
+        }
+
+        public void HostKeyUp(KeyEventArgs e)
+        {
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Command,
+                Command = RDCCommandType.HOST_KEY_UP,
+                SourceID = ClientID,
+                Data = new RDCCommandPackets.HostKeyEvent()
+                {
+                    Alt = e.Alt,
+                    Control = e.Control,
+                    Handled = e.Handled,
+                    KeyCode = e.KeyCode,
+                    KeyData = e.KeyData,
+                    KeyValue = e.KeyValue,
+                    Modifiers = e.Modifiers,
+                    Shift = e.Shift,
+                    SuppressKeyPress = e.SuppressKeyPress
+                }
+            });
         }
     }
 }

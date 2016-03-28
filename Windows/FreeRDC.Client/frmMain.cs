@@ -25,6 +25,7 @@ namespace FreeRDC.Client
             Program.Client.OnInitialized += Client_OnInitialized;
             Program.Client.OnConnectingToMaster += Client_OnConnectingToMaster;
             Program.Client.OnConnectedToMaster += Client_OnConnectedToMaster;
+            Program.Client.OnMasterNotice += Client_OnMasterNotice;
             Program.Client.OnHostConnectionError += Client_OnHostConnectionError;
             Program.Client.OnHostConnecting += Client_OnHostConnecting;
             Program.Client.OnHostConnected += Client_OnHostConnected;
@@ -40,6 +41,13 @@ namespace FreeRDC.Client
             bgServices = new BackgroundWorker();
             bgServices.DoWork += BgServices_DoWork;
             bgServices.RunWorkerAsync();
+        }
+
+        private void Client_OnMasterNotice(string notice)
+        {
+            Invoke(new Action(() => {
+                lbNotice.Text = notice;
+            }));
         }
 
         private void Client_OnHostConnectionError(string hostId)

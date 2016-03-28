@@ -2,7 +2,6 @@
 using FreeRDC.Common.Hardware;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace FreeRDC.Network.Client
@@ -18,10 +17,12 @@ namespace FreeRDC.Network.Client
         public string ConnectionPassword { get; set; }
 
         public delegate void VoidDelegate();
+        public delegate void NoticeDelegate(string notice);
         public event VoidDelegate OnInitializing;
         public event VoidDelegate OnInitialized;
         public event VoidDelegate OnConnectingToMaster;
         public event VoidDelegate OnConnectedToMaster;
+        public event NoticeDelegate OnMasterNotice;
 
         public event HostConnection.dHostConnection OnHostConnected;
         public event HostConnection.dHostConnection OnHostConnecting;
@@ -44,7 +45,13 @@ namespace FreeRDC.Network.Client
         public void ConnectHost(string hostId, string password)
         {
             ConnectionPassword = password;
-            SendCommand(Connection, RDCCommandChannel.Auth, RDCCommandType.MASTER_CLIENT_CONNECT, hostId);
+            SendCommand(Connection, new RDCCommand()
+            {
+                Channel = RDCCommandChannel.Auth,
+                Command = RDCCommandType.MASTER_CLIENT_CONNECT,
+                SourceID = ClientID,
+                DestinationID = hostId
+            });
         }
 
         public void RemoveConnections(string hostId)
@@ -64,20 +71,21 @@ namespace FreeRDC.Network.Client
             switch (cmd.Command)
             {
                 case RDCCommandType.MASTER_AUTH:
-                    SendCommand(Connection, RDCCommandChannel.Auth, RDCCommandType.MASTER_AUTH_CLIENT, null);
+                    SendCommand(Connection, new RDCCommand()
+                    {
+                        Channel = RDCCommandChannel.Auth,
+                        Command = RDCCommandType.MASTER_AUTH_CLIENT
+                    });
                     break;
 
                 case RDCCommandType.MASTER_AUTH_CLIENT_OK:
-                    ClientID = cmd.StringData;
+                    ClientID = (string)cmd.Data;
                     OnConnectedToMaster?.Invoke();
                     break;
 
                 case RDCCommandType.MASTER_CLIENT_CONNECT_OK:
-                    string address = Encoding.UTF8.GetString(cmd.ByteData);
-                    string ip = address.Split(':')[0];
-                    int port = int.Parse(address.Split(':')[1]);
-                    string host = cmd.StringData;
-                    HostConnection h = new HostConnection(ClientID, host);
+                    RDCCommandPackets.IntroducerPacket ipData = cmd.CastDataAs<RDCCommandPackets.IntroducerPacket>();
+                    HostConnection h = new HostConnection(ClientID, ipData.HostID);
                     if (OnHostConnecting != null) h.OnHostConnecting += OnHostConnecting;
                     if (OnHostConnected != null) h.OnHostConnected += OnHostConnected;
                     if (OnHostError != null) h.OnHostError += OnHostError;
@@ -86,12 +94,16 @@ namespace FreeRDC.Network.Client
                         HostConnections.Add(h);
                         h = HostConnections.Last();
                     }
-                    h.Connect(ip, port, ConnectionPassword);
+                    h.Connect(ipData.Address, ipData.Port, ConnectionPassword);
                     ConnectionPassword = string.Empty;
                     break;
 
                 case RDCCommandType.MASTER_CLIENT_CONNECT_ERROR:
-                    OnHostConnectionError?.Invoke(cmd.StringData);
+                    OnHostConnectionError?.Invoke((string)cmd.Data);
+                    break;
+
+                case RDCCommandType.MASTER_NOTICE:
+                    OnMasterNotice?.Invoke((string)cmd.Data);
                     break;
             }
         }

@@ -45,6 +45,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.pbAd = new System.Windows.Forms.PictureBox();
             this.pbLogo = new System.Windows.Forms.PictureBox();
+            this.lbNotice = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.trayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbAd)).BeginInit();
@@ -95,7 +96,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 150);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 156);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.statusStrip1.Size = new System.Drawing.Size(400, 22);
@@ -159,7 +160,7 @@
             this.pbAd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pbAd.Image = ((System.Drawing.Image)(resources.GetObject("pbAd.Image")));
-            this.pbAd.Location = new System.Drawing.Point(0, 101);
+            this.pbAd.Location = new System.Drawing.Point(0, 107);
             this.pbAd.Name = "pbAd";
             this.pbAd.Size = new System.Drawing.Size(400, 50);
             this.pbAd.TabIndex = 9;
@@ -175,12 +176,24 @@
             this.pbLogo.TabIndex = 8;
             this.pbLogo.TabStop = false;
             // 
+            // lbNotice
+            // 
+            this.lbNotice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbNotice.BackColor = System.Drawing.Color.Transparent;
+            this.lbNotice.Location = new System.Drawing.Point(0, 92);
+            this.lbNotice.Name = "lbNotice";
+            this.lbNotice.Size = new System.Drawing.Size(400, 13);
+            this.lbNotice.TabIndex = 11;
+            this.lbNotice.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(400, 172);
+            this.ClientSize = new System.Drawing.Size(400, 178);
+            this.Controls.Add(this.lbNotice);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.pbAd);
             this.Controls.Add(this.pbLogo);
@@ -223,6 +236,7 @@
         private System.Windows.Forms.PictureBox pbAd;
         private System.Windows.Forms.PictureBox pbLogo;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lbNotice;
     }
 }
 

@@ -27,15 +27,24 @@ namespace FreeRDC.Network
                 }
                 catch(Exception)
                 {
-                    // TODO: What to do here?
+                    throw;
+                    // TODO: What to do here? Exceptions seem to come from OnCommandReceived
                 }
             };
             client.OnConnectionTimeout += () =>
             {
                 ConnectTimeout();
-            };            
+            };
+            client.OnDisconnected += (Peer client) =>
+            {
+                OnDisconnected(client);
+            };
         }
-        
+
+        public virtual void OnDisconnected(Peer client)
+        {
+        }
+
         public virtual void OnConnected(Peer client)
         {
         }
