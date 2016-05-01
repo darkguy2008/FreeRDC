@@ -7,7 +7,6 @@ namespace FreeRDC.Network
         public string SourceID { get; set; }
         public string DestinationID { get; set; }
         public RDCCommandType Command { get; set; }
-        public RDCCommandChannel Channel { get; set; }
         public object Data { get; set; }
         public byte[] Buffer { get; set; }
         

@@ -1,4 +1,5 @@
-﻿using ENet;
+﻿using SharpRUDP;
+using System.Net;
 
 namespace FreeRDC.Network.Master
 {
@@ -8,89 +9,87 @@ namespace FreeRDC.Network.Master
 
         public MasterService()
         {
-            master = new MasterCore();
+            RUDPLogger.LogLevel = RUDPLogger.RUDPLoggerLevel.None;
+            master = new MasterCore(this);
         }
 
-        public override void OnClientConnected(Peer client)
+        public override void OnClientConnect(IPEndPoint ep)
         {
-            base.OnClientConnected(client);
-            master.AddConnection(client);
-            SendCommand(client, new RDCCommand()
+            base.OnClientConnect(ep);
+            master.AddConnection(ep);
+            Server.SendCommand(ep, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Auth,
                 Command = RDCCommandType.MASTER_AUTH
             });
         }
 
+        // TODO: OnClientDisconnected
+        /*
         public override void OnClientDisconnected(Peer client)
         {
             base.OnClientDisconnected(client);
             master.RemoveConnection(client);
         }
+        */
 
         public void SetNotice(string notice)
         {
             master.SetNotice(notice);
         }
 
-        public override void OnCommandReceived(Event evt, RDCCommand cmd)
+        public override void OnCommandReceived(IPEndPoint source, RDCCommand cmd)
         {
-            base.OnCommandReceived(evt, cmd);
+            base.OnCommandReceived(source, cmd);
             switch(cmd.Command)
             {
                 case RDCCommandType.MASTER_AUTH_HOST:
-                    MasterCore.ConnectedHost host = master.AddHost(evt.Peer, (string)cmd.Data);
-                    SendCommand(evt.Peer, new RDCCommand()
+                    MasterCore.ConnectedHost host = master.AddHost(source, (string)cmd.Data);
+                    Server.SendCommand(source, new RDCCommand()
                     {
-                        Channel = RDCCommandChannel.Auth,
                         Command = RDCCommandType.MASTER_AUTH_HOST_OK,
                         Data = host.HostID
                     });
                     break;
 
                 case RDCCommandType.MASTER_AUTH_CLIENT:
-                    MasterCore.ConnectedClient client = master.AddClient(evt.Peer, (string)cmd.Data);
-                    SendCommand(evt.Peer, new RDCCommand()
+                    MasterCore.ConnectedClient client = master.AddClient(source, (string)cmd.Data);
+                    Server.SendCommand(source, new RDCCommand()
                     {
-                        Channel = RDCCommandChannel.Auth,
                         Command = RDCCommandType.MASTER_AUTH_CLIENT_OK,
                         Data = client.ClientID
                     });
                     break;
 
                 case RDCCommandType.MASTER_CLIENT_CONNECT:
-                    Peer? holeHost = master.FindHostByID(cmd.DestinationID);
-                    Peer? holeClient = master.FindClientByID(cmd.SourceID);
-                    if (holeHost.HasValue && holeClient.HasValue)
+                    IPEndPoint holeHost = master.FindHostByID(cmd.DestinationID);
+                    IPEndPoint holeClient = master.FindClientByID(cmd.SourceID);
+                    if (holeHost != null && holeClient != null)
                     {
                         // TODO: Master should send host client ID requesting to authenticate.
                         // Host should store ID and then mark it as an allowed client.
-                        if (master.FindClientByConnection(holeClient.Value) == cmd.SourceID) // Avoid impersonation
-                            SendCommand(holeClient.Value, new RDCCommand()
+                        if (master.FindClientByConnection(holeClient) == cmd.SourceID) // Avoid impersonation
+                            Server.SendCommand(holeClient, new RDCCommand()
                             {
-                                Channel = RDCCommandChannel.Auth,
                                 Command = RDCCommandType.MASTER_CLIENT_CONNECT_OK,
                                 SourceID = cmd.DestinationID,
                                 Data = new RDCCommandPackets.IntroducerPacket()
                                 {
                                     HostID = cmd.DestinationID,
-                                    Address = holeHost.Value.GetRemoteAddress().ToString().Split(':')[0],
-                                    Port = int.Parse(holeHost.Value.GetRemoteAddress().ToString().Split(':')[1])
+                                    Address = holeHost.Address.ToString().Split(':')[0],
+                                    Port = int.Parse(holeHost.Address.ToString().Split(':')[1])
                                 }
                             });
                         else
-                            SendCommand(evt.Peer, new RDCCommand()
+                            Server.SendCommand(source, new RDCCommand()
                             {
-                                Channel = RDCCommandChannel.Auth,
                                 Command = RDCCommandType.MASTER_CLIENT_CONNECT_ERROR,
                                 SourceID = cmd.DestinationID,
                                 Data = "Unknown host"
                             });
                     }
                     else
-                        SendCommand(evt.Peer, new RDCCommand()
+                        Server.SendCommand(source, new RDCCommand()
                         {
-                            Channel = RDCCommandChannel.Auth,
                             Command = RDCCommandType.MASTER_CLIENT_CONNECT_ERROR,
                             SourceID = cmd.DestinationID,
                             Data = "Unknown host"

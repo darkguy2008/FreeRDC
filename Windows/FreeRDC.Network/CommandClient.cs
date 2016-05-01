@@ -1,66 +1,54 @@
-﻿using ENet;
+﻿using SharpRUDP;
 using System;
+using System.Net;
 using System.Text;
+using System.Web.Script.Serialization;
 
 namespace FreeRDC.Network
 {
-    public class CommandClient : CommandInterface
+    public class CommandClient
     {
-        private RawUDPClient client { get; set; }
-        public bool IsConnected { get { return client.IsConnected; } }
+        public CommandInterface Client { get; set; }
+        public bool IsConnected { get { return Client.State == ConnectionState.OPEN; } }
+
+        private JavaScriptSerializer _js = new JavaScriptSerializer();
 
         public CommandClient()
         {
-            client = new RawUDPClient();
-            client.OnConnected += (Peer connection) =>
-            {
-                OnConnected(connection);
-            };
-            client.OnDataReceived += (Event evt, byte[] data) =>
-            {
-                if (data.Length == 1)
-                    if (data[0] == 0x01) // KeepAlive packet
-                        return;
-                try
-                {
-                    OnCommandReceived(evt, _serializer.Deserialize<RDCCommand>(Encoding.UTF8.GetString(data)));
-                }
-                catch(Exception)
-                {
-                    throw;
-                    // TODO: What to do here? Exceptions seem to come from OnCommandReceived
-                }
-            };
-            client.OnConnectionTimeout += () =>
-            {
-                ConnectTimeout();
-            };
-            client.OnDisconnected += (Peer client) =>
-            {
-                OnDisconnected(client);
-            };
-        }
-
-        public virtual void OnDisconnected(Peer client)
-        {
-        }
-
-        public virtual void OnConnected(Peer client)
-        {
+            Client = new CommandInterface();
+            Client.OnConnected += OnConnected;
+            Client.OnPacketReceived += OnPacketReceived;
+                        
+            // TODO:
+            // _client.OnConnectionTimeout
+            // _client.OnDisconnected
         }
 
         public virtual void Connect(string hostname, int port)
         {
-            client.Connect(hostname, port);
+            Client.Connect(hostname, port);
         }
 
         public virtual void Disconnect()
         {
-            client.Disconnect();
+            Client.Disconnect();
         }
 
-        public virtual void ConnectTimeout()
+        private void OnConnected()
         {
         }
+
+        private void OnPacketReceived(RUDPPacket p)
+        {
+            if (p.Type == RUDPPacketType.NUL)
+                return;
+            if (p.Type == RUDPPacketType.DAT && p.Data.Length > 0)
+            {
+                Console.WriteLine("CLIENT <- " + Encoding.UTF8.GetString(p.Data));
+                OnCommandReceived(p.Src, _js.Deserialize<RDCCommand>(Encoding.UTF8.GetString(p.Data)));
+            }
+        }
+
+        public virtual void OnCommandReceived(IPEndPoint source, RDCCommand cmd) { }
     }
 }

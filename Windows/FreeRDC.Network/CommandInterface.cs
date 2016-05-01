@@ -1,33 +1,19 @@
-﻿using ENet;
+﻿using SharpRUDP;
 using System;
+using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 
 namespace FreeRDC.Network
 {
-    public class CommandInterface
+    public class CommandInterface : RUDPConnection
     {
-        internal JavaScriptSerializer _serializer = new JavaScriptSerializer();
+        internal JavaScriptSerializer _js = new JavaScriptSerializer();
 
-        public virtual void OnCommandReceived(Event evt, RDCCommand cmd) { }
-        public virtual void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommand cmd) { }
-
-        public void SendCommand(Peer destination, RDCCommand cmd)
+        public void SendCommand(IPEndPoint destination, RDCCommand cmd)
         {
-            Packet p = new Packet();
-            p.Initialize(Encoding.UTF8.GetBytes(_serializer.Serialize(cmd)), PacketFlags.Reliable);
-            try
-            {
-                destination.Send((byte)cmd.Channel, p);
-            }
-            catch (InvalidOperationException)
-            {
-                // TODO: What to do here?
-            }
-            catch (ENetException)
-            {
-                SendTimeout(destination, cmd.Channel, cmd);
-            }
+            Console.WriteLine("SEND -> " + _js.Serialize(cmd));
+            Send(destination, RUDPPacketType.DAT, Encoding.UTF8.GetBytes(_js.Serialize(cmd)));
         }
     }
 }

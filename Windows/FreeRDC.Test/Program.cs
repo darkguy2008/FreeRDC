@@ -1,4 +1,4 @@
-﻿using FreeRDC.Network.Client;
+﻿//using FreeRDC.Network.Client;
 using FreeRDC.Network.Host;
 using FreeRDC.Network.Master;
 using System;
@@ -13,7 +13,7 @@ namespace FreeRDC.Test
             Console.WriteLine("Master server started");
 
             MasterService m = new MasterService();
-            m.Listen(80);
+            m.Listen("127.0.0.1", 80);
 
             Thread.Sleep(500);
 
@@ -23,12 +23,12 @@ namespace FreeRDC.Test
 
             Thread.Sleep(1000);
 
-            ClientService c = new ClientService();
-            c.Connect("127.0.0.1", 80);
-            c.OnConnectedToMaster += () =>
-            {
-                c.ConnectHost("5A2153C3", "123");
-            };
+            //ClientService c = new ClientService();
+            //c.Connect("127.0.0.1", 80);
+            //c.OnConnectedToMaster += () =>
+            //{
+            //    c.ConnectHost("5A2153C3", "123");
+            //};
 
             while (m.IsListening) Thread.Sleep(1000);
             Console.WriteLine("Master server stopped");

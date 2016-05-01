@@ -1,8 +1,8 @@
-﻿using ENet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace FreeRDC.Network.Master
@@ -10,23 +10,25 @@ namespace FreeRDC.Network.Master
     public class MasterCore
     {
         private MasterDB _db;
+        private MasterService masterService;
         private object _mutex = new object();
+        private Random rnd = new Random((int)DateTime.Now.Ticks); // http://stackoverflow.com/questions/1054076/randomly-generated-hexadecimal-number-in-c-sharp
 
         public class ConnectedHost : CommandClient
         {
             public string HostID { get; set; }
             public string HardwareID { get; set; }
-            public Peer Connection { get; set; }
+            public IPEndPoint Connection { get; set; }
         }
 
         public class ConnectedClient : CommandClient
         {
             public string ClientID { get; set; }
             public string HardwareID { get; set; }
-            public Peer Connection { get; set; }
+            public IPEndPoint Connection { get; set; }
         }
 
-        public void RemoveConnection(Peer client)
+        public void RemoveConnection(IPEndPoint client)
         {
             connections.RemoveAll(x => x == client);
             hosts.RemoveAll(x => x.Connection == client);
@@ -37,38 +39,36 @@ namespace FreeRDC.Network.Master
         {
             RDCCommand cmdNotice = new RDCCommand()
             {
-                Channel = RDCCommandChannel.Auth, // TODO: Change channel
                 Command = RDCCommandType.MASTER_NOTICE,
                 Data = notice
             };
-            Parallel.ForEach(hosts, (x) => { x.SendCommand(x.Connection, cmdNotice); });
-            Parallel.ForEach(clients, (x) => { x.SendCommand(x.Connection, cmdNotice); });
+            Parallel.ForEach(hosts, (x) => { masterService.Server.SendCommand(x.Connection, cmdNotice); });
+            Parallel.ForEach(clients, (x) => { masterService.Server.SendCommand(x.Connection, cmdNotice); });
         }
 
-        public List<Peer> connections = new List<Peer>();
+        public List<IPEndPoint> connections = new List<IPEndPoint>();
         public List<ConnectedHost> hosts = new List<ConnectedHost>();
         public List<ConnectedClient> clients = new List<ConnectedClient>();
 
-        public MasterCore()
+        public MasterCore(MasterService masterService)
         {
             _db = new MasterDB("master.xml", false);
+            this.masterService = masterService;
         }
 
-        // http://stackoverflow.com/questions/1054076/randomly-generated-hexadecimal-number-in-c-sharp
-        private Random rnd = new Random((int)DateTime.Now.Ticks);
         private string GenerateID()
         {
             byte[] buffer = new byte[4];
             rnd.NextBytes(buffer);
-            return String.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
+            return string.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
         }
 
-        public void AddConnection(Peer client)
+        public void AddConnection(IPEndPoint client)
         {
             connections.Add(client);
         }
 
-        public ConnectedClient AddClient(Peer connection, string fingerprint)
+        public ConnectedClient AddClient(IPEndPoint connection, string fingerprint)
         {
             ConnectedClient c = clients.Where(x => x.HardwareID == fingerprint).SingleOrDefault();
             if (c == null)
@@ -86,7 +86,7 @@ namespace FreeRDC.Network.Master
             return c;
         }
 
-        public Peer? FindClientByID(string clientId)
+        public IPEndPoint FindClientByID(string clientId)
         {
             ConnectedClient c = clients.Where(x => x.ClientID == clientId).SingleOrDefault();
             if (c != null)
@@ -95,16 +95,16 @@ namespace FreeRDC.Network.Master
                 return null;
         }
 
-        public string FindClientByConnection(Peer peer)
+        public string FindClientByConnection(IPEndPoint client)
         {
-            ConnectedClient c = clients.Where(x => x.Connection == peer).SingleOrDefault();
+            ConnectedClient c = clients.Where(x => x.Connection == client).SingleOrDefault();
             if (c != null)
                 return c.ClientID;
             else
                 return null;
         }
 
-        public Peer? FindHostByID(string hostId)
+        public IPEndPoint FindHostByID(string hostId)
         {
             ConnectedHost h = hosts.Where(x => x.HostID == hostId).SingleOrDefault();
             if (h != null)
@@ -113,7 +113,7 @@ namespace FreeRDC.Network.Master
                 return null;
         }
 
-        public ConnectedHost AddHost(Peer connection, string fingerprint)
+        public ConnectedHost AddHost(IPEndPoint connection, string fingerprint)
         {
             ConnectedHost h = new ConnectedHost()
             {
@@ -148,7 +148,7 @@ namespace FreeRDC.Network.Master
             return h;
         }
 
-        public Peer? ConnectToHost(Peer client, string hostId)
+        public IPEndPoint ConnectToHost(IPEndPoint client, string hostId)
         {
             ConnectedHost h = hosts.Where(x => x.HostID == hostId).SingleOrDefault();
             if (h == null)

@@ -32,10 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ENet, Version=1.3.6.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ENet.1.3.6.3\lib\ENet.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -54,20 +50,6 @@
     <Compile Include="RDCScreenCapture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="libenet.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ENetX64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ENetX86.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
       <Project>{73fb8487-173a-4041-93c9-852e1ca473d9}</Project>
       <Name>FreeRDC.Common</Name>
@@ -75,6 +57,10 @@
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{66fcd2d8-8ea8-4a59-8e1d-c6d13ab1d51d}</Project>
       <Name>FreeRDC.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpRUDP\SharpRUDP\SharpRUDP\SharpRUDP.csproj">
+      <Project>{65CCEF8D-4F60-49B9-81D4-2A71570F1A20}</Project>
+      <Name>SharpRUDP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
