@@ -1,0 +1,4 @@
+[submodule "Windows/SharpRUDP"]
+	path = Windows/SharpRUDP
+[submodule "Windows/SharpRUDP"]
+	url = https://github.com/darkguy2008/SharpRUDP.git
