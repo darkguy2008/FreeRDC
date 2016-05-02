@@ -56,6 +56,10 @@
       <Project>{66fcd2d8-8ea8-4a59-8e1d-c6d13ab1d51d}</Project>
       <Name>FreeRDC.Network</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SharpRUDP\SharpRUDP\SharpRUDP\SharpRUDP.csproj">
+      <Project>{65CCEF8D-4F60-49B9-81D4-2A71570F1A20}</Project>
+      <Name>SharpRUDP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

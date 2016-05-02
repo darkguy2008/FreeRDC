@@ -1,12 +1,12 @@
-﻿using ENet;
-using System.Drawing;
+﻿using System.Drawing;
+using System.Net;
 using System.Windows.Forms;
 
 namespace FreeRDC.Network.Client
 {
     public class HostConnection : CommandClient
     {
-        public Peer Connection;
+        public IPEndPoint Connection;
 
         public delegate void VoidDelegate();
         public delegate void dHostConnection(string hostId);
@@ -29,25 +29,26 @@ namespace FreeRDC.Network.Client
             ClientID = clientId;
         }
 
-        public override void OnConnected(Peer client)
+        public override void OnConnected(IPEndPoint client)
         {
             base.OnConnected(client);
             Connection = client;
-            SendCommand(client, new RDCCommand()
+            Client.SendCommand(client, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_CONNECT,
                 SourceID = ClientID,
                 Data = Password
             });
         }
 
+        // TODO: SendTimeout
+        /*
         public override void SendTimeout(Peer destination, RDCCommandChannel channel, RDCCommand cmd)
         {
             base.SendTimeout(destination, channel, cmd);
             OnHostCommandTimeout?.Invoke();
         }
-
+        */
         // TODO: public override void ConnectTimeout()
 
         public void Connect(string ip, int port, string pass)
@@ -59,9 +60,8 @@ namespace FreeRDC.Network.Client
 
         public void GetHostInfo()
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_GETINFO,
                 SourceID = ClientID
             });
@@ -69,17 +69,16 @@ namespace FreeRDC.Network.Client
 
         public void ScreenRefresh()
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Display,
                 Command = RDCCommandType.HOST_SCREEN_REFRESH,
                 SourceID = ClientID
             });
         }
 
-        public override void OnCommandReceived(Event evt, RDCCommand cmd)
+        public override void OnCommandReceived(IPEndPoint source, RDCCommand cmd)
         {
-            base.OnCommandReceived(evt, cmd);
+            base.OnCommandReceived(source, cmd);
             switch(cmd.Command)
             {
                 case RDCCommandType.HOST_CONNECT_OK:
@@ -104,9 +103,8 @@ namespace FreeRDC.Network.Client
 
         public void HostMouseMove(string hostID, Point mousePos)
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_MOUSE_MOVE,
                 SourceID = ClientID,
                 Data = new RDCCommandPackets.HostMouseEvent()
@@ -120,9 +118,8 @@ namespace FreeRDC.Network.Client
 
         public void HostMouseDown(int x, int y, MouseButtons buttons)
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_MOUSE_DOWN,
                 SourceID = ClientID,
                 Data = new RDCCommandPackets.HostMouseEvent()
@@ -136,9 +133,8 @@ namespace FreeRDC.Network.Client
 
         public void HostMouseUp(int x, int y, MouseButtons buttons)
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_MOUSE_UP,
                 SourceID = ClientID,
                 Data = new RDCCommandPackets.HostMouseEvent()
@@ -152,9 +148,8 @@ namespace FreeRDC.Network.Client
 
         public void HostKeyDown(KeyEventArgs e)
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_KEY_DOWN,
                 SourceID = ClientID,
                 Data = new RDCCommandPackets.HostKeyEvent()
@@ -174,9 +169,8 @@ namespace FreeRDC.Network.Client
 
         public void HostKeyUp(KeyEventArgs e)
         {
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Command,
                 Command = RDCCommandType.HOST_KEY_UP,
                 SourceID = ClientID,
                 Data = new RDCCommandPackets.HostKeyEvent()

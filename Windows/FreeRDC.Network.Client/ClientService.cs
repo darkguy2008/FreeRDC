@@ -1,14 +1,14 @@
-﻿using ENet;
-using FreeRDC.Common.Hardware;
+﻿using FreeRDC.Common.Hardware;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 
 namespace FreeRDC.Network.Client
 {
     public class ClientService : CommandClient
     {
-        public Peer Connection;
+        public IPEndPoint Connection;
         public object _mutex = new object();
         public List<HostConnection> HostConnections = new List<HostConnection>();
 
@@ -45,9 +45,8 @@ namespace FreeRDC.Network.Client
         public void ConnectHost(string hostId, string password)
         {
             ConnectionPassword = password;
-            SendCommand(Connection, new RDCCommand()
+            Client.SendCommand(Connection, new RDCCommand()
             {
-                Channel = RDCCommandChannel.Auth,
                 Command = RDCCommandType.MASTER_CLIENT_CONNECT,
                 SourceID = ClientID,
                 DestinationID = hostId
@@ -59,21 +58,20 @@ namespace FreeRDC.Network.Client
             lock(_mutex) HostConnections.RemoveAll(x => x.HostID == hostId);
         }
 
-        public override void OnConnected(Peer client)
+        public override void OnConnected(IPEndPoint client)
         {
             base.OnConnected(client);
             Connection = client;
         }
 
-        public override void OnCommandReceived(Event evt, RDCCommand cmd)
+        public override void OnCommandReceived(IPEndPoint source, RDCCommand cmd)
         {
-            base.OnCommandReceived(evt, cmd);
+            base.OnCommandReceived(source, cmd);
             switch (cmd.Command)
             {
                 case RDCCommandType.MASTER_AUTH:
-                    SendCommand(Connection, new RDCCommand()
+                    Client.SendCommand(Connection, new RDCCommand()
                     {
-                        Channel = RDCCommandChannel.Auth,
                         Command = RDCCommandType.MASTER_AUTH_CLIENT
                     });
                     break;
@@ -110,7 +108,8 @@ namespace FreeRDC.Network.Client
 
         public void Shutdown()
         {
-            Connection.DisconnectNow(-1);
+            //Connection.DisconnectNow(-1);
+            Client.Disconnect();
             while (IsConnected)
                 Thread.Sleep(100);
         }

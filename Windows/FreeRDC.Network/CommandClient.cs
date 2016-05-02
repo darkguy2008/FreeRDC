@@ -34,7 +34,7 @@ namespace FreeRDC.Network
             Client.Disconnect();
         }
 
-        private void OnConnected()
+        public virtual void OnConnected(IPEndPoint ep)
         {
         }
 

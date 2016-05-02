@@ -50,6 +50,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FreeRDC.Network.Client\FreeRDC.Network.Client.csproj">
+      <Project>{b806fa03-b22e-46f4-aa1c-4962f026ea80}</Project>
+      <Name>FreeRDC.Network.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FreeRDC.Network.Host\FreeRDC.Network.Host.csproj">
       <Project>{bb4cede8-5fc8-428a-9e53-a739e5f7a43f}</Project>
       <Name>FreeRDC.Network.Host</Name>
