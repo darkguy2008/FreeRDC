@@ -13,7 +13,7 @@ namespace FreeRDC.Network
         public void SendCommand(IPEndPoint destination, RDCCommand cmd)
         {
             Console.WriteLine("SEND -> " + _js.Serialize(cmd));
-            Send(destination, RUDPPacketType.DAT, Encoding.UTF8.GetBytes(_js.Serialize(cmd)));
+            Send(destination, RUDPPacketType.DAT, RUDPPacketFlags.NUL, Encoding.UTF8.GetBytes(_js.Serialize(cmd)));
         }
     }
 }

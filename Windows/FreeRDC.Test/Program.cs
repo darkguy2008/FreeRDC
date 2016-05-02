@@ -15,13 +15,15 @@ namespace FreeRDC.Test
             MasterService m = new MasterService();
             m.Listen("127.0.0.1", 80);
 
-            Thread.Sleep(500);
+            Console.ReadKey();
 
+            /*
             HostService h = new HostService();
             h.Init();
             h.Connect("127.0.0.1", 80);
 
             Thread.Sleep(1000);
+            */
 
             ClientService c = new ClientService();
             c.Connect("127.0.0.1", 80);
