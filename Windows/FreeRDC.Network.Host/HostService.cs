@@ -41,7 +41,6 @@ namespace FreeRDC.Network.Host
 
         public void Init()
         {
-            RUDPLogger.LogLevel = RUDPLogger.RUDPLoggerLevel.None;
             Clients = new List<ConnectedClient>();
             OnInitializing?.Invoke();
             if(!_isInitialized)
@@ -196,7 +195,7 @@ namespace FreeRDC.Network.Host
 
         private bool ValidateClient(string clientID, IPEndPoint connection)
         {
-            if (Clients.Where(x => x.ClientID == clientID && x.Connection == connection).SingleOrDefault() != null)
+            if (Clients.Where(x => x.ClientID == clientID && x.Connection.ToString() == connection.ToString()).SingleOrDefault() != null)
                 return true;
             Server.SendCommand(connection, new RDCCommand()
             {

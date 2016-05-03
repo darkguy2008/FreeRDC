@@ -9,7 +9,6 @@ namespace FreeRDC.Network.Master
 
         public MasterService()
         {
-            RUDPLogger.LogLevel = RUDPLogger.RUDPLoggerLevel.None;
             master = new MasterCore(this);
         }
 
