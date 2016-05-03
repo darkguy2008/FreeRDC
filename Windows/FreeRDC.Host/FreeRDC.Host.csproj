@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{50F8B961-F35B-48A0-AA23-B85AD5DC3860}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FreeRDC.Host</RootNamespace>
     <AssemblyName>FreeRDC.Host</AssemblyName>
@@ -56,6 +56,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\appIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

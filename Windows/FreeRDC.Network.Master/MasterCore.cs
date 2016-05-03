@@ -14,14 +14,14 @@ namespace FreeRDC.Network.Master
         private object _mutex = new object();
         private Random rnd = new Random((int)DateTime.Now.Ticks); // http://stackoverflow.com/questions/1054076/randomly-generated-hexadecimal-number-in-c-sharp
 
-        public class ConnectedHost : CommandClient
+        public class ConnectedHost : CommandBase
         {
             public string HostID { get; set; }
             public string HardwareID { get; set; }
             public IPEndPoint Connection { get; set; }
         }
 
-        public class ConnectedClient : CommandClient
+        public class ConnectedClient : CommandBase
         {
             public string ClientID { get; set; }
             public string HardwareID { get; set; }

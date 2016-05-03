@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace FreeRDC.Network.Client
 {
-    public class HostConnection : CommandClient
+    public class HostConnection : CommandBase
     {
         public IPEndPoint Connection;
 

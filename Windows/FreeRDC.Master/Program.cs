@@ -26,9 +26,10 @@ namespace FreeRDC.Master
             });
             Config = INIFile.Read("Master.ini");
             int port = int.Parse(Config["Master"]["Port"]);
-            Console.WriteLine("Master server started at port " + port);
-            srv.Listen(port);
-            thConfig.Start();
+            string address = Config["Master"]["Listen"];
+            Console.WriteLine("Master server started at " + address + ":" + port);
+            srv.Listen(address, port);
+            //thConfig.Start();
             while (srv.IsListening)
                 Thread.Sleep(1000);
             Console.WriteLine("Master server stopped");

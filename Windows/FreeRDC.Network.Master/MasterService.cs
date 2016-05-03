@@ -3,7 +3,7 @@ using System.Net;
 
 namespace FreeRDC.Network.Master
 {
-    public class MasterService : CommandServer
+    public class MasterService : CommandBase
     {
         private MasterCore master;
 
@@ -47,7 +47,12 @@ namespace FreeRDC.Network.Master
                     Server.SendCommand(source, new RDCCommand()
                     {
                         Command = RDCCommandType.MASTER_AUTH_HOST_OK,
-                        Data = host.HostID
+                        Data = new RDCCommandPackets.IntroducerPacket()
+                        {
+                            HostID = host.HostID,
+                            Address = source.Address.ToString(),
+                            Port = source.Port
+                        }
                     });
                     break;
 
@@ -75,8 +80,8 @@ namespace FreeRDC.Network.Master
                                 Data = new RDCCommandPackets.IntroducerPacket()
                                 {
                                     HostID = cmd.DestinationID,
-                                    Address = holeHost.Address.ToString().Split(':')[0],
-                                    Port = int.Parse(holeHost.Address.ToString().Split(':')[1])
+                                    Address = holeHost.Address.ToString(),
+                                    Port = holeHost.Port
                                 }
                             });
                         else

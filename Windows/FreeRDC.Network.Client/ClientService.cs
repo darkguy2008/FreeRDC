@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace FreeRDC.Network.Client
 {
-    public class ClientService : CommandClient
+    public class ClientService : CommandBase
     {
         public IPEndPoint Connection;
         public object _mutex = new object();

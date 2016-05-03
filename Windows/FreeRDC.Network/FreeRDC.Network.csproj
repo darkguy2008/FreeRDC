@@ -43,9 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandClient.cs" />
+    <Compile Include="CommandBase.cs" />
     <Compile Include="CommandInterface.cs" />
-    <Compile Include="CommandServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RDCCommand.cs" />
     <Compile Include="RDCCommandExtensions.cs" />

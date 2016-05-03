@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace FreeRDC.Network.Host
 {
-    public class HostService : CommandClient
+    public class HostService : CommandBase
     {
         public class ConnectedClient
         {
@@ -93,7 +93,9 @@ namespace FreeRDC.Network.Host
                     break;
 
                 case RDCCommandType.MASTER_AUTH_HOST_OK:
-                    HostID = (string)cmd.Data;
+                    RDCCommandPackets.IntroducerPacket outsideEndpoint = cmd.CastDataAs<RDCCommandPackets.IntroducerPacket>();
+                    HostID = outsideEndpoint.HostID;
+                    Listen(outsideEndpoint.Address, outsideEndpoint.Port);
                     OnMasterConnected?.Invoke(HostID);
                     break;
 
@@ -107,7 +109,7 @@ namespace FreeRDC.Network.Host
                     if (pass == Password)
                     {
                         OnClientConnected?.Invoke();
-                        Client.SendCommand(source, new RDCCommand()
+                        Server.SendCommand(source, new RDCCommand()
                         {
                             Command = RDCCommandType.HOST_CONNECT_OK
                         });
@@ -122,7 +124,7 @@ namespace FreeRDC.Network.Host
                         }              
                     }
                     else
-                        Client.SendCommand(source, new RDCCommand()
+                        Server.SendCommand(source, new RDCCommand()
                         {
                             Command = RDCCommandType.HOST_CONNECT_ERROR
                         });
@@ -131,7 +133,7 @@ namespace FreeRDC.Network.Host
                 case RDCCommandType.HOST_GETINFO:
                     if (!ValidateClient(cmd.SourceID, source))
                         return;
-                    Client.SendCommand(source, new RDCCommand()
+                    Server.SendCommand(source, new RDCCommand()
                     {
                         Command = RDCCommandType.HOST_NEWINFO,
                         SourceID = HostID,
@@ -147,7 +149,7 @@ namespace FreeRDC.Network.Host
                     if (!ValidateClient(cmd.SourceID, source))
                         return;
                     MemoryStream ms = _screencap.Capture3();
-                    Client.SendCommand(source, new RDCCommand()
+                    Server.SendCommand(source, new RDCCommand()
                     {
                         Command = RDCCommandType.HOST_SCREEN_REFRESH_OK,
                         SourceID = HostID,
@@ -196,7 +198,7 @@ namespace FreeRDC.Network.Host
         {
             if (Clients.Where(x => x.ClientID == clientID && x.Connection == connection).SingleOrDefault() != null)
                 return true;
-            Client.SendCommand(connection, new RDCCommand()
+            Server.SendCommand(connection, new RDCCommand()
             {
                 Command = RDCCommandType.HOST_ERROR,
                 SourceID = HostID

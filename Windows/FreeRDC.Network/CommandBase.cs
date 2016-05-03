@@ -6,35 +6,47 @@ using System.Web.Script.Serialization;
 
 namespace FreeRDC.Network
 {
-    public class CommandClient
+    public class CommandBase
     {
         public CommandInterface Client { get; set; }
+        public CommandInterface Server { get; set; }
         public bool IsConnected { get { return Client.State == ConnectionState.OPEN; } }
+        public bool IsListening { get { return Server.State == ConnectionState.LISTEN; } }
 
         private JavaScriptSerializer _js = new JavaScriptSerializer();
-
-        public CommandClient()
+        
+        public virtual void Connect(string hostname, int port)
         {
             Client = new CommandInterface();
             Client.OnConnected += OnConnected;
             Client.OnPacketReceived += OnPacketReceived;
-                        
-            // TODO:
-            // _client.OnConnectionTimeout
-            // _client.OnDisconnected
+            Client.Connect(hostname, port);
         }
 
-        public virtual void Connect(string hostname, int port)
+        public virtual void Listen(string address, int port)
         {
-            Client.Connect(hostname, port);
+            Server = new CommandInterface();
+            Server.OnClientConnect += OnClientConnect;
+            Server.OnClientDisconnect += OnClientDisconnect;
+            Server.OnPacketReceived += OnPacketReceived;
+            Server.Listen(address, port);
         }
 
         public virtual void Disconnect()
         {
-            Client.Disconnect();
+            Client?.Disconnect();
+            Server?.Disconnect();
         }
 
         public virtual void OnConnected(IPEndPoint ep)
+        {
+        }
+
+        public virtual void OnClientConnect(IPEndPoint ep)
+        {
+        }
+
+        public void OnClientDisconnect(IPEndPoint ep)
         {
         }
 
