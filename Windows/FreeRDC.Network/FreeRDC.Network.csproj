@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
+    <Compile Include="CommandContainer.cs" />
     <Compile Include="CommandConnection.cs" />
     <Compile Include="CommandSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

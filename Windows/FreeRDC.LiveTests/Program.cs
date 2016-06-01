@@ -13,6 +13,7 @@ namespace FreeRDC.LiveTests
         {
             public int value { get; set; }
             public string name { get; set; }
+            public byte[] bindata { get; set; }
         }
 
         struct nested
@@ -25,10 +26,10 @@ namespace FreeRDC.LiveTests
         static void Main(string[] args)
         {
             CommandSerializer cs = new CommandSerializer();
-            cmd c = new cmd() { value = 1, name = "Test" };
+            cmd c = new cmd() { value = 1, name = "Test", bindata = new byte[] { 0, 1, 2, 3 } };
             byte[] data = cs.Serialize(c);
             c = cs.DeserializeAs<cmd>(data);
-            //Console.ReadKey();
+            Console.ReadKey();
             nested n = new nested() { value = 1, name = "Test", stuff = c };
             byte[] ndata = cs.Serialize(n);
             n = cs.DeserializeAs<nested>(ndata);

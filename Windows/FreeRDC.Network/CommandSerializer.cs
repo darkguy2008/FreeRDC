@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace FreeRDC.Network
@@ -13,7 +11,7 @@ namespace FreeRDC.Network
             Byte = 1,
             Int = 2,
             String = 3,
-            Array = 4,
+            ByteArray = 4,
             Struct = 5
         }
 
@@ -22,36 +20,48 @@ namespace FreeRDC.Network
             MemoryStream ms = new MemoryStream();
             using(BinaryWriter bw = new BinaryWriter(ms))
             {
-                foreach (var prop in cmd.GetType().GetProperties())
+                if (cmd.GetType().IsArray)
                 {
-                    Type propType = prop.PropertyType;
-                    if (propType == typeof(byte))
+                    if (cmd.GetType() == typeof(byte[]))
+                        bw.Write((byte[])cmd);
+                }
+                else
+                {
+                    foreach (var prop in cmd.GetType().GetProperties())
                     {
-                        bw.Write((byte)EType.Byte);
-                        bw.Write(prop.Name);
-                        bw.Write((byte)prop.GetValue(cmd, null));
-                    }
-                    if (propType == typeof(int))
-                    {
-                        bw.Write((byte)EType.Int);
-                        bw.Write(prop.Name);
-                        bw.Write((int)prop.GetValue(cmd, null));
-                    }
-                    if (propType == typeof(string))
-                    {
-                        string v = (string)prop.GetValue(cmd, null);
-                        bw.Write((byte)EType.String);
-                        bw.Write(prop.Name);
-                        bw.Write(v.Length);
-                        bw.Write(v);
-                    }
-                    if(propType.IsNested)
-                    {
-                        byte[] ndata = Serialize(prop.GetValue(cmd, null));
-                        bw.Write((byte)EType.Struct);
-                        bw.Write(prop.Name);
-                        bw.Write(ndata.Length);
-                        bw.Write(ndata);
+                        Type propType = prop.PropertyType;
+                        if (propType == typeof(byte))
+                        {
+                            bw.Write((byte)EType.Byte);
+                            bw.Write(prop.Name);
+                            bw.Write((byte)prop.GetValue(cmd, null));
+                        }
+                        if (propType == typeof(int))
+                        {
+                            bw.Write((byte)EType.Int);
+                            bw.Write(prop.Name);
+                            bw.Write((int)prop.GetValue(cmd, null));
+                        }
+                        if (propType == typeof(string))
+                        {
+                            string v = (string)prop.GetValue(cmd, null);
+                            bw.Write((byte)EType.String);
+                            bw.Write(prop.Name);
+                            bw.Write(v.Length);
+                            bw.Write(v);
+                        }
+                        if (propType.IsNested || propType == typeof(byte[]))
+                        {                            
+                            object ov = prop.GetValue(cmd, null);
+                            if(ov != null)
+                            {
+                                byte[] ndata = Serialize(ov);
+                                bw.Write(propType.IsNested ? (byte)EType.Struct : (byte)EType.ByteArray);
+                                bw.Write(prop.Name);
+                                bw.Write(ndata.Length);
+                                bw.Write(ndata);
+                            }
+                        }
                     }
                 }
             }
@@ -75,7 +85,7 @@ namespace FreeRDC.Network
                     Type t = obj.GetType();
                     string propName = string.Empty;
                     EType dataType = (EType)br.ReadByte();
-                    Console.WriteLine(dataType.ToString());
+                    Console.WriteLine("DT: " + dataType.ToString());
                     switch (dataType)
                     {
                         case EType.Byte:

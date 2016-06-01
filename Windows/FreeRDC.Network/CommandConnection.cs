@@ -14,7 +14,7 @@ namespace FreeRDC.Network
         public delegate void dlgCommandEvent(IPEndPoint ep, object cmd);
         public event dlgCommandEvent OnCommandReceived;
 
-        private static JavaScriptSerializer _js = new JavaScriptSerializer();
+        private CommandSerializer _cs = new CommandSerializer();
 
         public CommandConnection()
         {
@@ -35,13 +35,13 @@ namespace FreeRDC.Network
 
         private void SendCommand(IPEndPoint destination, object cmd, Action EvtCommandSent)
         {
-            byte[] data = Encoding.ASCII.GetBytes(_js.Serialize(cmd));
+            byte[] data = _cs.Serialize(cmd);
             Connection.InitializePacket(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
         }
 
         private void EvtPacketReceived(RUDPPacket p)
         {
-            object cmd = _js.Deserialize<object>(Encoding.ASCII.GetString(p.Data));
+            object cmd = _cs.DeserializeAs<CommandContainer>(p.Data);
             OnCommandReceived?.Invoke(p.Src, cmd);
         }
     }
