@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
+# Visual Studio Express 14 for Windows Desktop
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{EABCEDDE-46B4-4AC0-B878-63A05528072F}"
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeRDC.Network", "FreeRDC.Network\FreeRDC.Network.csproj", "{CEAF8457-FB6A-4188-B207-F4818E6B9B94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeRDC.Services.Master", "FreeRDC.Services.Master\FreeRDC.Services.Master.csproj", "{F1723812-BEDB-429C-8E84-41F2451BBD64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeRDC.LiveTests", "FreeRDC.LiveTests\FreeRDC.LiveTests.csproj", "{B2D93847-452C-406F-BFDD-626F9F483A49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,14 @@ Global
 		{F1723812-BEDB-429C-8E84-41F2451BBD64}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F1723812-BEDB-429C-8E84-41F2451BBD64}.Release|x86.ActiveCfg = Release|Any CPU
 		{F1723812-BEDB-429C-8E84-41F2451BBD64}.Release|x86.Build.0 = Release|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2D93847-452C-406F-BFDD-626F9F483A49}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,5 +71,6 @@ Global
 		{65CCEF8D-4F60-49B9-81D4-2A71570F1A20} = {688F7189-FC94-4CFD-94B7-F5C66F03FE21}
 		{CEAF8457-FB6A-4188-B207-F4818E6B9B94} = {EABCEDDE-46B4-4AC0-B878-63A05528072F}
 		{F1723812-BEDB-429C-8E84-41F2451BBD64} = {C81485B2-EE40-436C-AF15-BC88C79E3247}
+		{B2D93847-452C-406F-BFDD-626F9F483A49} = {0843D997-AC93-4D2C-8D5F-CC8B8FF3DE8F}
 	EndGlobalSection
 EndGlobal
