@@ -1,4 +1,5 @@
 ﻿using SharpRUDP;
+using SharpRUDP.Serializers;
 using System;
 using System.Net;
 using System.Text;
@@ -10,13 +11,19 @@ namespace FreeRDC.Network
     {
         public RUDPConnection Connection { get; set; }
 
-        public delegate void dlgCommandEvent(IPEndPoint ep, Command cmd);
+        public delegate void dlgCommandEvent(IPEndPoint ep, object cmd);
         public event dlgCommandEvent OnCommandReceived;
 
         private static JavaScriptSerializer _js = new JavaScriptSerializer();
 
-        public void Server(string address, int port)
+        public CommandConnection()
         {
+            Connection = new RUDPConnection();
+            Connection.SerializeMode = RUDPSerializeMode.Binary;
+        }
+
+        public void Server(string address, int port)
+        {            
             Connection.OnPacketReceived += EvtPacketReceived;
             Connection.Listen(address, port);
         }
@@ -26,15 +33,16 @@ namespace FreeRDC.Network
             Connection.Connect(address, port);
         }
 
-        private void EvtPacketReceived(RUDPPacket p)
+        private void SendCommand(IPEndPoint destination, object cmd, Action EvtCommandSent)
         {
-            Command c = _js.Deserialize<Command>(Encoding.ASCII.GetString(p.Data));
-            OnCommandReceived?.Invoke(p.Src, c);
+            byte[] data = Encoding.ASCII.GetBytes(_js.Serialize(cmd));
+            Connection.InitializePacket(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
         }
 
-        private void SendCommand(IPEndPoint destination, Command cmd, Action EvtCommandSent)
+        private void EvtPacketReceived(RUDPPacket p)
         {
-
+            object cmd = _js.Deserialize<object>(Encoding.ASCII.GetString(p.Data));
+            OnCommandReceived?.Invoke(p.Src, cmd);
         }
     }
 }
