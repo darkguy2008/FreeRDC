@@ -4,6 +4,7 @@
     {
         public string TagFrom { get; set; }
         public string TagTo { get; set; }
+        public ECommandType Type { get; set; }
         public byte[] Command { get; set; }
     }
 }
