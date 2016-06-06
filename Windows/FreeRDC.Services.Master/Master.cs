@@ -6,23 +6,32 @@ namespace FreeRDC.Services
 {
     public class Master
     {
+        private MasterDB _db;
         private CommandConnection _server;
         private static CommandSerializer _cs = new CommandSerializer();
 
-        public void Listen(string address, int port)
+        public void Start(string address, int port)
+        {
+            _db = new MasterDB("Master.xml", true);
+            Listen(address, port);
+        }
+
+        private void Listen(string address, int port)
         {
             _server = new CommandConnection();
             _server.OnCommandReceived += Server_OnCommandReceived;
             _server.Server(address, port);
         }
 
-        private void Server_OnCommandReceived(IPEndPoint ep, CommandContainer cmd)
+        private void Server_OnCommandReceived(IPEndPoint ep, CommandContainer command)
         {
-            switch ((ECommandType)cmd.Type)
+            switch ((ECommandType)command.Type)
             {
                 case ECommandType.AUTH:
-                    Commands.AUTH cmdAuth = _cs.DeserializeAs<Commands.AUTH>(cmd.Command);
+                    var cmd = _cs.DeserializeAs<Commands.AUTH>(command.Command);
                     _server.SendCommand(ep, "MASTER", "OMGTAG1", new Commands.AUTH_OK() { AssignedTag = "OMGTAG1", EndpointAddress = ep.ToString() }, null);
+                    _db.Data.Rows.Add(null, DateTime.Now, DateTime.Now, cmd.Fingerprint, "OMGTAG1");
+                    _db.Save();
                     break;
             }
         }

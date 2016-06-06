@@ -34,7 +34,7 @@ namespace FreeRDC.LiveTests
             */
 
             Master m = new Master();
-            m.Listen("127.0.0.1", 8000);
+            m.Start("127.0.0.1", 8000);
 
             Thread.Sleep(1000);
 
