@@ -3,8 +3,8 @@
 
     public enum ECommandType
     {
-        AUTH,
-        AUTH_OK
+        AUTH = 0x10,
+        AUTH_OK = 0x11
     }
 
     public static class Commands
@@ -18,6 +18,7 @@
         public class AUTH_OK
         {
             public string AssignedTag { get; set; }
+            public string EndpointAddress { get; set; }
         }
     }
 

@@ -1,11 +1,5 @@
-﻿using FreeRDC.Network;
-using FreeRDC.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using FreeRDC.Services;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FreeRDC.LiveTests
 {

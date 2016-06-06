@@ -1,29 +1,28 @@
 ﻿using FreeRDC.Network;
+using System;
 using System.Net;
 
 namespace FreeRDC.Services
 {
     public class Master
     {
-        CommandConnection server;
+        private CommandConnection _server;
+        private static CommandSerializer _cs = new CommandSerializer();
 
         public void Listen(string address, int port)
         {
-            server = new CommandConnection();
-            server.OnCommandReceived += Server_OnCommandReceived;
-            server.Server(address, port);
+            _server = new CommandConnection();
+            _server.OnCommandReceived += Server_OnCommandReceived;
+            _server.Server(address, port);
         }
 
-        private void Server_OnCommandReceived(IPEndPoint ep, CommandSerializer serializer, CommandContainer cmd)
+        private void Server_OnCommandReceived(IPEndPoint ep, CommandContainer cmd)
         {
-            switch(cmd.Type)
+            switch ((ECommandType)cmd.Type)
             {
                 case ECommandType.AUTH:
-                    Commands.AUTH cmdAuth = serializer.DeserializeAs<Commands.AUTH>(cmd.Command);
-                    if(cmdAuth.AuthType == 1) // Host
-                    {
-                       server.SendCommand(ep, null, null, new Commands.AUTH_OK() { AssignedTag = "OMGTAG1" }, null);
-                    }
+                    Commands.AUTH cmdAuth = _cs.DeserializeAs<Commands.AUTH>(cmd.Command);
+                    _server.SendCommand(ep, "MASTER", "OMGTAG1", new Commands.AUTH_OK() { AssignedTag = "OMGTAG1", EndpointAddress = ep.ToString() }, null);
                     break;
             }
         }
