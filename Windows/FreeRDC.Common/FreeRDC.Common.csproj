@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B2D93847-452C-406F-BFDD-626F9F483A49}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{57BE33EF-A6E7-425C-ACC3-EC001EF40DFB}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FreeRDC.LiveTests</RootNamespace>
-    <AssemblyName>FreeRDC.LiveTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>FreeRDC.Common</RootNamespace>
+    <AssemblyName>FreeRDC.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,37 +32,17 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Hardware\HWID.cs" />
+    <Compile Include="IO\INIFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
-      <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
-      <Name>FreeRDC.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Client\FreeRDC.Services.Client.csproj">
-      <Project>{94346a18-bddb-4fd0-a308-8b2e8d94b8bc}</Project>
-      <Name>FreeRDC.Services.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Host\FreeRDC.Services.Host.csproj">
-      <Project>{f0898de2-2c6c-4923-8345-0a6f761d25a4}</Project>
-      <Name>FreeRDC.Services.Host</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Master\FreeRDC.Services.Master.csproj">
-      <Project>{f1723812-bedb-429c-8e84-41f2451bbd64}</Project>
-      <Name>FreeRDC.Services.Master</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -10,6 +10,7 @@ namespace FreeRDC.Services
         public DataSet Db { get; set; }
         public DataTable Data { get { return Db.Tables[0]; } }
         public object _mutex = new object();
+
         private string _filename;
 
         public MasterDB(string filename, bool force)

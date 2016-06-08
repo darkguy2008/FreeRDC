@@ -1,4 +1,5 @@
 ﻿using FreeRDC.Services;
+using FreeRDC.Services.Client;
 using System.Threading;
 
 namespace FreeRDC.LiveTests
@@ -40,6 +41,14 @@ namespace FreeRDC.LiveTests
 
             Host h = new Host();
             h.ConnectToMaster("127.0.0.1", 8000);
+
+            Thread.Sleep(1000);
+
+            Client c = new Client();
+            c.ConnectToMaster("127.0.0.1", 8000);
+
+            Thread.Sleep(1000);
+            c.ConnectToHost(h.AssignedTag);
 
             while (true)
                 Thread.Sleep(10);

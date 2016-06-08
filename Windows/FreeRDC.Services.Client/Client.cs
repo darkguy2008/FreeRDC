@@ -3,9 +3,9 @@ using FreeRDC.Network;
 using System;
 using System.Net;
 
-namespace FreeRDC.Services
+namespace FreeRDC.Services.Client
 {
-    public class Host
+    public class Client
     {
         public string AssignedTag { get; set; }
         public string Fingerprint { get; set; }
@@ -22,12 +22,17 @@ namespace FreeRDC.Services
             _master.Client(address, port);
         }
 
+        public void ConnectToHost(string hostTag)
+        {
+            _master.SendCommand(_master.RemoteEndPoint, AssignedTag, hostTag, new Commands.CLIENT_CONNECTIONREQUEST());
+        }
+
         private void OnConnected(IPEndPoint ep)
         {
             _master.RemoteEndPoint = ep;
-            _master.SendCommand(_master.RemoteEndPoint, null, null, new Commands.AUTH() { AuthType = (int)Commands.AUTH.AuthTypes.Host, Fingerprint = Fingerprint }, () =>
+            _master.SendCommand(_master.RemoteEndPoint, null, null, new Commands.AUTH() { AuthType = (int)Commands.AUTH.AuthTypes.Client, Fingerprint = Fingerprint }, () =>
             {
-                Console.WriteLine("Identifying HOST with fingerprint {0}...", Fingerprint);
+                Console.WriteLine("Identifying CLIENT with fingerprint {0}...", Fingerprint);
             });
         }
 

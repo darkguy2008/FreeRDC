@@ -40,10 +40,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Master.cs" />
+    <Compile Include="MasterCore.cs" />
     <Compile Include="MasterDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
+      <Project>{57be33ef-a6e7-425c-acc3-ec001ef40dfb}</Project>
+      <Name>FreeRDC.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
       <Name>FreeRDC.Network</Name>

@@ -1,18 +1,19 @@
 ﻿using FreeRDC.Network;
-using System;
 using System.Net;
 
 namespace FreeRDC.Services
 {
     public class Master
     {
-        private MasterDB _db;
+        public string Fingerprint { get; set; }
+
         private CommandConnection _server;
+        private MasterCore _master;
         private static CommandSerializer _cs = new CommandSerializer();
 
         public void Start(string address, int port)
         {
-            _db = new MasterDB("Master.xml", true);
+            _master = new MasterCore(this);
             Listen(address, port);
         }
 
@@ -29,9 +30,8 @@ namespace FreeRDC.Services
             {
                 case ECommandType.AUTH:
                     var cmd = _cs.DeserializeAs<Commands.AUTH>(command.Command);
-                    _server.SendCommand(ep, "MASTER", "OMGTAG1", new Commands.AUTH_OK() { AssignedTag = "OMGTAG1", EndpointAddress = ep.ToString() }, null);
-                    _db.Data.Rows.Add(null, DateTime.Now, DateTime.Now, cmd.Fingerprint, "OMGTAG1");
-                    _db.Save();
+                    MasterCore.HostEntry host = _master.AddHost(ep, cmd.Fingerprint);
+                    _server.SendCommand(host.EndPoint, "MASTER", host.AssignedTag, new Commands.AUTH_OK() { AssignedTag = host.AssignedTag, EndpointAddress = host.EndPoint.ToString() }, null);
                     break;
             }
         }
