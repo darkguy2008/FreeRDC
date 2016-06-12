@@ -8,20 +8,21 @@ namespace FreeRDC.Services
 {
     public class MasterCore
     {
-        public class HostEntry
+        public class DeviceEntry
         {
-            public string AssignedTag { get; set; }
+            public string AssignedID { get; set; }
             public string Fingerprint { get; set; }
             public IPEndPoint EndPoint { get; set; }
         }
 
-        public List<HostEntry> OnlineHosts = new List<HostEntry>();
+        public List<DeviceEntry> OnlineHosts = new List<DeviceEntry>();
+        public List<DeviceEntry> OnlineClients = new List<DeviceEntry>();
 
         private MasterDB _db;
-        private Master _master;
+        private MasterService _master;
         private static object _hostMutex = new object();
 
-        public MasterCore(Master master)
+        public MasterCore(MasterService master)
         {
             _master = master;
             _db = new MasterDB("Master.xml", false);
@@ -36,11 +37,11 @@ namespace FreeRDC.Services
             return String.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
         }
 
-        public HostEntry AddHost(IPEndPoint ep, string fingerprint)
+        public DeviceEntry AddHost(IPEndPoint ep, string fingerprint)
         {
-            HostEntry h = new HostEntry();
+            DeviceEntry h = new DeviceEntry();
             h.EndPoint = ep;
-            h.AssignedTag = GenerateID();
+            h.AssignedID = GenerateID();
             h.Fingerprint = fingerprint;
 
             lock (_hostMutex)
@@ -51,14 +52,14 @@ namespace FreeRDC.Services
 
                 if (host == null)
                 {
-                    _db.Data.Rows.Add(null, DateTime.Now, DateTime.Now, h.Fingerprint, h.AssignedTag);
+                    _db.Data.Rows.Add(null, DateTime.Now, DateTime.Now, h.Fingerprint, h.AssignedID);
                     _db.Save();
                 }
                 else
                 {
                     host.SetField("dtLastActive", DateTime.Now);
                     _db.Save();
-                    h.AssignedTag = host.Field<string>("assignedId");
+                    h.AssignedID = host.Field<string>("assignedId");
                     h.Fingerprint = fingerprint;
                 }
 
@@ -66,6 +67,16 @@ namespace FreeRDC.Services
             }
 
             return h;
+        }
+
+        public DeviceEntry AddClient(IPEndPoint ep, string fingerprint)
+        {
+            DeviceEntry c = new DeviceEntry();
+            c.EndPoint = ep;
+            c.AssignedID = GenerateID();
+            c.Fingerprint = fingerprint;
+            OnlineClients.Add(c);
+            return c;
         }
     }
 }

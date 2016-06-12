@@ -37,17 +37,18 @@ namespace FreeRDC.Network
             Connection.Connect(address, port);
         }
 
-        public void SendCommand(IPEndPoint destination, string tagFrom, string tagTo, object cmd, Action EvtCommandSent = null)
+        public void SendCommand(IPEndPoint destination, string id, object cmd, Action EvtCommandSent = null)
         {
-            Console.WriteLine("SEND -> {0}", cmd);
-            byte[] data = _cs.Serialize(new CommandContainer() { TagFrom = tagFrom, TagTo = tagTo, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = _cs.Serialize(cmd) });
+            CommandContainer command = new CommandContainer() { ID = id, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = _cs.Serialize(cmd) };
+            byte[] data = _cs.Serialize(command);
+            Console.WriteLine("SEND -> {0}|{1}", (ECommandType)command.Type, cmd);
             Connection.Send(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
         }
 
         private void EvtPacketReceived(RUDPPacket p)
         {
             CommandContainer cmd = _cs.DeserializeAs<CommandContainer>(p.Data);
-            Console.WriteLine("RECV <- {0}", cmd);
+            Console.WriteLine("RECV <- {0}|{1}", (ECommandType)cmd.Type, cmd);
             OnCommandReceived?.Invoke(p.Src, cmd);
         }
     }

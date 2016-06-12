@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Master.cs" />
+    <Compile Include="MasterService.cs" />
     <Compile Include="MasterCore.cs" />
     <Compile Include="MasterDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -52,6 +52,10 @@
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
       <Name>FreeRDC.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpRUDP\SharpRUDP\SharpRUDP\SharpRUDP.csproj">
+      <Project>{65CCEF8D-4F60-49B9-81D4-2A71570F1A20}</Project>
+      <Name>SharpRUDP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

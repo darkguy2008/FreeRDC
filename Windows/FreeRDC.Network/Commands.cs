@@ -6,7 +6,12 @@
         AUTH = 0x10,
         AUTH_OK = 0x11,
 
-        CLIENT_CONNECTIONREQUEST = 0x20
+        CLIENT_CONNECTIONREQUEST = 0x20,
+
+        INTRODUCER = 0x30,
+
+        CLIENT_LOGIN = 0x40,
+        CLIENT_LOGIN_OK = 0x41
     }
 
     public static class Commands
@@ -25,16 +30,23 @@
 
         public class AUTH_OK
         {
-            public string AssignedTag { get; set; }
+            public string AssignedID { get; set; }
             public string EndpointAddress { get; set; }
         }
 
-        public class CLIENT_CONNECTIONREQUEST
+        public class CLIENT_CONNECTIONREQUEST { }
+
+        public class INTRODUCER
         {
-            public CLIENT_CONNECTIONREQUEST()
-            {
-            }
+            public string RemoteEndPointAddress { get; set; }
         }
+
+        public class CLIENT_LOGIN
+        {
+            public string Password { get; set; }
+        }
+
+        public class CLIENT_LOGIN_OK { }
     }
 
 }
