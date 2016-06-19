@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{33B350E5-C841-4C3D-9CE9-F5477294F3EB}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{8FEBAF8A-C8FC-45CF-AAC1-64D463E450E6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FreeRDC.Host</RootNamespace>
-    <AssemblyName>FreeRDC.Host</AssemblyName>
+    <RootNamespace>FreeRDC.Client</RootNamespace>
+    <AssemblyName>FreeRDC.Client</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup>
     <ApplicationIcon>appIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
@@ -57,10 +54,19 @@
     <Compile Include="frmMain.designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmRemote.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRemote.designer.cs">
+      <DependentUpon>frmRemote.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmRemote.resx">
+      <DependentUpon>frmRemote.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -70,10 +76,9 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <Content Include="appIcon.ico" />
-    <Content Include="Host.ini">
+    <Content Include="Client.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Properties\Settings.settings">
@@ -91,9 +96,9 @@
       <Project>{57be33ef-a6e7-425c-acc3-ec001ef40dfb}</Project>
       <Name>FreeRDC.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Host\FreeRDC.Services.Host.csproj">
-      <Project>{f0898de2-2c6c-4923-8345-0a6f761d25a4}</Project>
-      <Name>FreeRDC.Services.Host</Name>
+    <ProjectReference Include="..\FreeRDC.Services.Client\FreeRDC.Services.Client.csproj">
+      <Project>{94346a18-bddb-4fd0-a308-8b2e8d94b8bc}</Project>
+      <Name>FreeRDC.Services.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

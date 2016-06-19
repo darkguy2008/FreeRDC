@@ -11,7 +11,14 @@
         INTRODUCER = 0x30,
 
         CLIENT_LOGIN = 0x40,
-        CLIENT_LOGIN_OK = 0x41
+        CLIENT_LOGIN_OK = 0x41,
+
+        HOST_INFO = 0x50,
+        HOST_SCREENREFRESH = 0x51,
+
+        CLIENT_MOUSE_MOVE = 0x60,
+        CLIENT_MOUSE_DOWN = 0x61,
+        CLIENT_MOUSE_UP = 0x62
     }
 
     public static class Commands
@@ -47,6 +54,37 @@
         }
 
         public class CLIENT_LOGIN_OK { }
+
+        public class HOST_INFO
+        {
+            public int ScreenWidth { get; set; }
+            public int ScreenHeight { get; set; }
+        }
+
+        public class HOST_SCREENREFRESH
+        {
+            public byte[] Buffer { get; set; }
+        }
+
+        public class CLIENT_MOUSE_MOVE
+        {
+            public int MouseX { get; set; }
+            public int MouseY { get; set; }
+        }
+
+        public class CLIENT_MOUSE_DOWN
+        {
+            public int MouseX { get; set; }
+            public int MouseY { get; set; }
+            public int Buttons { get; set; }
+        }
+
+        public class CLIENT_MOUSE_UP
+        {
+            public int MouseX { get; set; }
+            public int MouseY { get; set; }
+            public int Buttons { get; set; }
+        }
     }
 
 }

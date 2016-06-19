@@ -9,12 +9,16 @@ namespace FreeRDC.Services.Client
 {
     public class ClientService
     {
+        public static CommandSerializer Serializer = new CommandSerializer();
+
         public string AssignedTag { get; set; }
         public string Fingerprint { get; set; }
         public List<HostConnection> HostConnections { get; set; }
 
         public delegate void dlgConnectionEvent(HostConnection connection);
+        public delegate void dlgMasterLoggedIn(string assignedId);
         public event dlgConnectionEvent OnNewConnection;
+        public event dlgMasterLoggedIn OnMasterLoggedIn;
 
         private CommandConnection _master;
         private static CommandSerializer _cs = new CommandSerializer();
@@ -59,6 +63,7 @@ namespace FreeRDC.Services.Client
                         AssignedTag = cmdAuth.AssignedID;
                         Console.WriteLine("CLIENT Assigned tag: " + cmdAuth.AssignedID);
                         Console.WriteLine("CLIENT Endpoint address: " + cmdAuth.EndpointAddress);
+                        OnMasterLoggedIn?.Invoke(cmdAuth.AssignedID);
                     }
                     break;
                 case ECommandType.INTRODUCER:
@@ -68,7 +73,6 @@ namespace FreeRDC.Services.Client
                     {
                         HostConnections.Add(new HostConnection(cmdIntroducer.RemoteEndPointAddress.ToEndPoint()) { ID = command.ID });
                         hostConnection = HostConnections.Last();
-                        hostConnection.Connect();
                     }
                     OnNewConnection?.Invoke(hostConnection);
                     break;

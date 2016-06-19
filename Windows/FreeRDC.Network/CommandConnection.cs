@@ -2,11 +2,13 @@
 using SharpRUDP.Serializers;
 using System;
 using System.Net;
+using System.Threading;
 
 namespace FreeRDC.Network
 {
     public class CommandConnection
     {
+        public bool IsServer { get; set; }
         public RUDPConnection Connection { get; set; }
         public IPEndPoint RemoteEndPoint { get; set; }
 
@@ -20,19 +22,29 @@ namespace FreeRDC.Network
         public CommandConnection()
         {
             Connection = new RUDPConnection();
-            Connection.DebugEnabled = false;
+            Connection.DebugEnabled = true;
             Connection.SerializeMode = RUDPSerializeMode.Binary;
+            Connection.OnSocketError += (IPEndPoint ep, Exception ex) => {
+                Console.WriteLine("Socket error");
+                Thread.Sleep(5000);
+                if (IsServer)
+                    Server(Connection.Address, Connection.Port);
+                else
+                    Client(Connection.Address, Connection.Port);
+            };
             Connection.OnConnected += (IPEndPoint ep) => { OnConnected?.Invoke(ep); };
         }
 
         public void Server(string address, int port)
-        {            
+        {
+            IsServer = true;
             Connection.OnPacketReceived += EvtPacketReceived;
             Connection.Listen(address, port);
         }
 
         public void Client(string address, int port)
         {
+            IsServer = false;
             Connection.OnPacketReceived += EvtPacketReceived;
             Connection.Connect(address, port);
         }

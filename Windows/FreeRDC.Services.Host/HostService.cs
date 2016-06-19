@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Windows.Forms;
 
 namespace FreeRDC.Services
 {
@@ -41,6 +42,15 @@ namespace FreeRDC.Services
             _master.Client(address, port);
         }
 
+        public object GetHostInfoCommand()
+        {
+            return new Commands.HOST_INFO()
+            {
+                ScreenWidth = Screen.PrimaryScreen.Bounds.Width,
+                ScreenHeight = Screen.PrimaryScreen.Bounds.Height
+            };
+        }
+
         private void OnConnected(IPEndPoint ep)
         {
             _master.RemoteEndPoint = ep;
@@ -70,7 +80,7 @@ namespace FreeRDC.Services
                     ClientConnection clientConnection = null;
                     lock (ClientConnections)
                     {
-                        ClientConnections.Add(new ClientConnection(cmdIntroducer.RemoteEndPointAddress.ToEndPoint(), OutsideEndpoint) { HostSvc = this, ID = command.ID });
+                        ClientConnections.Add(new ClientConnection(cmdIntroducer.RemoteEndPointAddress.ToEndPoint(), OutsideEndpoint) { HostSvc = this, ClientID = command.ID, HostID = AssignedID });
                         clientConnection = ClientConnections.Last();
                         clientConnection.Listen();
                     }
