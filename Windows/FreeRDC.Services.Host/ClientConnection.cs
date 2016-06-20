@@ -91,7 +91,7 @@ namespace FreeRDC.Services.Host
                         break;
                     case ECommandType.CLIENT_MOUSE_UP:
                         var cmdMouseUp = HostService.Serializer.DeserializeAs<Commands.CLIENT_MOUSE_UP>(command.Command);
-                        RDCRemoteMouse.Down(cmdMouseUp.MouseX, cmdMouseUp.MouseY, (MouseButtons)cmdMouseUp.Buttons);
+                        RDCRemoteMouse.Up(cmdMouseUp.MouseX, cmdMouseUp.MouseY, (MouseButtons)cmdMouseUp.Buttons);
                         break;
                 }
             }
