@@ -27,6 +27,26 @@ namespace FreeRDC.Services.Host
             Connection.Server(Address, Port);
         }
 
+        private void ClientInfoThread()
+        {
+            while(_isLoggedIn)
+            {
+                Connection.SendCommand(Connection.RemoteEndPoint, HostID, HostSvc.GetHostInfoCommand());
+                Thread.Sleep(5000);
+            }
+        }
+
+        private void ClientScreenRefreshThread()
+        {
+            while(_isLoggedIn)
+            {
+                MemoryStream ms = _screencap.Capture3();
+                Connection.SendCommand(Connection.RemoteEndPoint, HostID, new Commands.HOST_SCREENREFRESH() { Buffer = ms.ToArray() }, () => { _sendScreenRefresh.Set(); });
+                Thread.Sleep(100);
+                //_sendScreenRefresh.Wait();
+            }
+        }
+
         private void Connection_OnCommandReceived(IPEndPoint ep, CommandContainer command)
         {
             switch((ECommandType)command.Type)
