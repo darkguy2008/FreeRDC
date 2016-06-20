@@ -22,8 +22,8 @@ namespace FreeRDC.Network
         public CommandConnection()
         {
             Connection = new RUDPConnection();
-            Connection.DebugEnabled = true;
-            Connection.SerializeMode = RUDPSerializeMode.Binary;
+            // Connection.DebugEnabled = true;
+            // Connection.SerializeMode = RUDPSerializeMode.Binary;
             Connection.OnSocketError += (IPEndPoint ep, Exception ex) => {
                 Console.WriteLine("Socket error");
                 Thread.Sleep(5000);
@@ -54,7 +54,7 @@ namespace FreeRDC.Network
             CommandContainer command = new CommandContainer() { ID = id, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = _cs.Serialize(cmd) };
             byte[] data = _cs.Serialize(command);
             Console.WriteLine("SEND -> {0}|{1}", (ECommandType)command.Type, cmd);
-            Connection.Send(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
+            Connection.Send(destination, data);
         }
 
         private void EvtPacketReceived(RUDPPacket p)
