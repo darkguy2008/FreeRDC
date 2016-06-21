@@ -1,17 +1,27 @@
 ﻿using FreeRDC.Network;
 using System;
+using System.IO;
 using System.Net;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace FreeRDC.Services.Host
 {
     public class ClientConnection
     {
-        public string ID { get; set; }
+        public string HostID { get; set; }
+        public string ClientID { get; set; }
         public int Port { get; set; }
         public string Address { get; set; }
         public IPEndPoint EndPoint { get; set; }
         public CommandConnection Connection { get; set; }
         public HostService HostSvc { get; set; }
+
+        private bool _isLoggedIn;
+        private Thread _thClientInfo;
+        private Thread _thClientScreenRefresh;
+        private RDCScreenCapture _screencap = new RDCScreenCapture();
+        private ManualResetEventSlim _sendScreenRefresh = new ManualResetEventSlim(false);
 
         public ClientConnection(IPEndPoint clientEndpoint, IPEndPoint outsideEndpoint)
         {
@@ -21,6 +31,7 @@ namespace FreeRDC.Services.Host
 
         public void Listen()
         {
+            _isLoggedIn = false;
             Console.WriteLine("HOST LISTENING ON {0}:{1}", Address, Port);
             Connection = new CommandConnection();
             Connection.OnCommandReceived += Connection_OnCommandReceived;
@@ -49,9 +60,13 @@ namespace FreeRDC.Services.Host
 
         private void Connection_OnCommandReceived(IPEndPoint ep, CommandContainer command)
         {
-            switch((ECommandType)command.Type)
+            if (command.ID != HostID)
+                return;
+
+            if (!_isLoggedIn)
             {
-                case ECommandType.CLIENT_LOGIN:
+                if ((ECommandType)command.Type == ECommandType.CLIENT_LOGIN)
+                {
                     var cmdLogin = HostService.Serializer.DeserializeAs<Commands.CLIENT_LOGIN>(command.Command);
                     if (cmdLogin.Password == "123")
                     {

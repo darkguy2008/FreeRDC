@@ -1,11 +1,13 @@
 ﻿using SharpRUDP;
 using System;
 using System.Net;
+using System.Threading;
 
 namespace FreeRDC.Network
 {
     public class CommandConnection
     {
+        public bool IsServer { get; set; }
         public RUDPConnection Connection { get; set; }
         public IPEndPoint RemoteEndPoint { get; set; }
 
@@ -33,13 +35,15 @@ namespace FreeRDC.Network
         }
 
         public void Server(string address, int port)
-        {            
+        {
+            IsServer = true;
             Connection.OnPacketReceived += EvtPacketReceived;
             Connection.Listen(address, port);
         }
 
         public void Client(string address, int port)
         {
+            IsServer = false;
             Connection.OnPacketReceived += EvtPacketReceived;
             Connection.Connect(address, port);
         }

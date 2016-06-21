@@ -82,8 +82,6 @@
             this.Name = "frmRemote";
             this.Text = "frmRemote";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmRemote_FormClosing);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmRemote_KeyDown);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frmRemote_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
