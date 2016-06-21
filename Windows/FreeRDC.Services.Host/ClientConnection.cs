@@ -105,5 +105,14 @@ namespace FreeRDC.Services.Host
                 }
             }
         }
+
+        public void Shutdown()
+        {
+            _isLoggedIn = false;
+            while (_thClientInfo.IsAlive)
+                Thread.Sleep(10);
+            while (_thClientScreenRefresh.IsAlive)
+                Thread.Sleep(10);
+        }
     }
 }

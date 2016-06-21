@@ -87,7 +87,7 @@ namespace FreeRDC.Host
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             IsExiting = true;
-            // TODO: Program.Host.Shutdown();
+            Program.Host.Shutdown();
             Application.Exit();
         }
 
@@ -105,6 +105,13 @@ namespace FreeRDC.Host
                 Show();
                 Focus();
             }
+        }
+
+        private void shutdownHostToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IsExiting = true;
+            Program.Host.Shutdown();
+            Application.Exit();
         }
     }
 }

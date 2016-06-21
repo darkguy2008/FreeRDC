@@ -1,12 +1,12 @@
-﻿using System.Drawing;
-using System.ComponentModel;
-using System.Windows.Forms;
-using System.Threading;
+﻿using FreeRDC.Services.Client;
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
-using FreeRDC.Services.Client;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace FreeRDC.Client
 {
@@ -74,6 +74,34 @@ namespace FreeRDC.Client
             {
                 Thread.Sleep(2000);
             }
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            Point mouse = pictureBox1.PointToClient(MousePosition);
+            MousePos.X = (int)(HostScreenWidth * mouse.X / (float)pictureBox1.Width);
+            MousePos.Y = (int)(HostScreenHeight * mouse.Y / (float)pictureBox1.Height);
+            Connection.HostMouseMove(MousePos);
+        }
+
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            Connection.HostMouseDown(MousePos.X, MousePos.Y, e.Button);
+        }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            Connection.HostMouseUp(MousePos.X, MousePos.Y, e.Button);
+        }
+
+        private void frmRemote_KeyDown(object sender, KeyEventArgs e)
+        {
+            Connection.HostKeyDown(e);
+        }
+
+        private void frmRemote_KeyUp(object sender, KeyEventArgs e)
+        {
+            Connection.HostKeyUp(e);
         }
 
         private void frmRemote_FormClosing(object sender, FormClosingEventArgs e)
@@ -163,24 +191,6 @@ namespace FreeRDC.Client
                 }
             }
             return CallNextHookEx(ptrHook, nCode, wp, lp);
-        }
-
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            Point mouse = pictureBox1.PointToClient(MousePosition);
-            MousePos.X = (int)(HostScreenWidth * mouse.X / (float)pictureBox1.Width);
-            MousePos.Y = (int)(HostScreenHeight * mouse.Y / (float)pictureBox1.Height);
-            Connection.HostMouseMove(MousePos);
-        }
-
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            Connection.HostMouseDown(MousePos.X, MousePos.Y, e.Button);
-        }
-
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
-        {
-            Connection.HostMouseUp(MousePos.X, MousePos.Y, e.Button);
         }
     }
 }

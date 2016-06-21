@@ -63,6 +63,11 @@ namespace FreeRDC.Network
             //Console.WriteLine("RECV <- {0}|{1}", (ECommandType)cmd.Type, cmd);
             OnCommandReceived?.Invoke(p.Src, cmd);
         }
+
+        public void Shutdown()
+        {
+            Connection.Disconnect();
+        }
     }
 }
     

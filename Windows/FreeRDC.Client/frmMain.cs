@@ -1,10 +1,9 @@
-﻿using System;
+﻿using FreeRDC.Common.IO;
+using FreeRDC.Services.Client;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Linq;
-using System.Collections.Generic;
-using FreeRDC.Common.IO;
-using FreeRDC.Services.Client;
 
 namespace FreeRDC.Client
 {

@@ -88,5 +88,12 @@ namespace FreeRDC.Services
                     break;
             }
         }
+
+        public void Shutdown()
+        {
+            foreach (ClientConnection cn in ClientConnections)
+                cn.Shutdown();
+            _master.Shutdown();
+        }
     }
 }
