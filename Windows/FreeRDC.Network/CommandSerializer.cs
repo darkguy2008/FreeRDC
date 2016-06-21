@@ -13,7 +13,9 @@ namespace FreeRDC.Network
             String = 3,
             ByteArray = 4,
             Struct = 5,
-            Null = 6
+            Null = 6,
+            Short = 7,
+            Bool = 8
         }
 
         public byte[] Serialize(object cmd)
@@ -42,6 +44,20 @@ namespace FreeRDC.Network
                             bw.Write((byte)EType.Byte);
                             bw.Write(prop.Name);
                             bw.Write((byte)prop.GetValue(cmd, null));
+                            continue;
+                        }
+                        if (propType == typeof(bool))
+                        {
+                            bw.Write((byte)EType.Bool);
+                            bw.Write(prop.Name);
+                            bw.Write((bool)prop.GetValue(cmd, null));
+                            continue;
+                        }
+                        if (propType == typeof(short))
+                        {
+                            bw.Write((byte)EType.Short);
+                            bw.Write(prop.Name);
+                            bw.Write((short)prop.GetValue(cmd, null));
                             continue;
                         }
                         if (propType == typeof(int))
@@ -96,6 +112,14 @@ namespace FreeRDC.Network
                         case EType.Byte:
                             propName = br.ReadString();
                             t.GetProperty(propName).SetValue(obj, br.ReadByte(), null);
+                            break;
+                        case EType.Bool:
+                            propName = br.ReadString();
+                            t.GetProperty(propName).SetValue(obj, br.ReadBoolean(), null);
+                            break;
+                        case EType.Short:
+                            propName = br.ReadString();
+                            t.GetProperty(propName).SetValue(obj, br.ReadInt16(), null);
                             break;
                         case EType.Int:
                             propName = br.ReadString();

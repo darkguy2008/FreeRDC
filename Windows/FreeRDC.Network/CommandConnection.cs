@@ -1,5 +1,4 @@
 ﻿using SharpRUDP;
-using SharpRUDP.Serializers;
 using System;
 using System.Net;
 
@@ -30,7 +29,7 @@ namespace FreeRDC.Network
                 else
                     Client(Connection.Address, Connection.Port);
             };
-            Connection.OnConnected += (IPEndPoint ep) => { OnConnected?.Invoke(ep); };
+            Connection.OnConnection += (IPEndPoint ep) => { OnConnected?.Invoke(ep); };
         }
 
         public void Server(string address, int port)
