@@ -59,6 +59,8 @@ namespace FreeRDC.Client
             Invoke(new Action(() => {
                 Width = width / 2;
                 Height = height / 2;
+                HostScreenWidth = width;
+                HostScreenHeight = height;
             }));
         }
 

@@ -52,8 +52,9 @@ namespace FreeRDC.Services.Host
             while(_isLoggedIn)
             {
                 MemoryStream ms = _screencap.Capture3();
-                Connection.SendCommand(Connection.RemoteEndPoint, HostID, new Commands.HOST_SCREENREFRESH() { Buffer = ms.ToArray() }, () => { _sendScreenRefresh.Set(); });
-                _sendScreenRefresh.Wait();
+                Connection.SendCommand(Connection.RemoteEndPoint, HostID, new Commands.HOST_SCREENREFRESH() { Buffer = ms.ToArray() }, () => { /*_sendScreenRefresh.Set();*/ });
+                Thread.Sleep(10);
+                //_sendScreenRefresh.Wait();
             }
         }
 
