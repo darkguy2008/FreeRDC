@@ -15,7 +15,8 @@ namespace FreeRDC.Services
 
         public string AssignedID { get; set; }
         public string Fingerprint { get; set; }
-        public string Password { get; set; }
+        public string PasswordToken { get; set; }
+        public string PasswordGlobal { get; set; }
         public IPEndPoint OutsideEndpoint { get; set; }
         public List<ClientConnection> ClientConnections { get; set; }
 
@@ -35,7 +36,7 @@ namespace FreeRDC.Services
         {
             //Fingerprint = HWID.GenerateFingerprint();
             Fingerprint = "123";
-            Password = "123";
+            PasswordToken = "123";
             _master = new CommandConnection();
             _master.OnConnected += OnConnected;
             _master.OnCommandReceived += OnCommandReceived;

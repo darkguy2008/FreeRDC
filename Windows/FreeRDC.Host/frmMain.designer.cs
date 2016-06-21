@@ -51,6 +51,9 @@
             this.shutdownHostToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configureHostToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setGlobalPasswordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateNewTokenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblPassword = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.trayMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbAd)).BeginInit();
@@ -63,7 +66,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(175, 55);
+            this.label1.Location = new System.Drawing.Point(175, 44);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(43, 13);
             this.label1.TabIndex = 0;
@@ -74,31 +77,33 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(175, 81);
+            this.label2.Location = new System.Drawing.Point(175, 70);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 13);
+            this.label2.Size = new System.Drawing.Size(38, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Password";
+            this.label2.Text = "Token";
             // 
             // txID
             // 
             this.txID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txID.Location = new System.Drawing.Point(246, 52);
+            this.txID.Location = new System.Drawing.Point(246, 41);
             this.txID.Name = "txID";
             this.txID.ReadOnly = true;
             this.txID.Size = new System.Drawing.Size(139, 20);
             this.txID.TabIndex = 2;
+            this.txID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txPassword
             // 
             this.txPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txPassword.Location = new System.Drawing.Point(246, 78);
+            this.txPassword.Location = new System.Drawing.Point(246, 67);
             this.txPassword.Name = "txPassword";
             this.txPassword.ReadOnly = true;
             this.txPassword.Size = new System.Drawing.Size(139, 20);
             this.txPassword.TabIndex = 3;
+            this.txPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // trayIcon
             // 
@@ -110,7 +115,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 165);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 178);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.statusStrip1.Size = new System.Drawing.Size(400, 22);
@@ -164,7 +169,7 @@
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Location = new System.Drawing.Point(12, 88);
+            this.label3.Location = new System.Drawing.Point(12, 77);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(148, 13);
             this.label3.TabIndex = 10;
@@ -176,7 +181,7 @@
             this.pbAd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pbAd.Image = ((System.Drawing.Image)(resources.GetObject("pbAd.Image")));
-            this.pbAd.Location = new System.Drawing.Point(0, 116);
+            this.pbAd.Location = new System.Drawing.Point(0, 129);
             this.pbAd.Name = "pbAd";
             this.pbAd.Size = new System.Drawing.Size(400, 50);
             this.pbAd.TabIndex = 9;
@@ -187,7 +192,7 @@
             this.pbLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pbLogo.Image = global::FreeRDC.Host.Properties.Resources.logo;
-            this.pbLogo.Location = new System.Drawing.Point(12, 38);
+            this.pbLogo.Location = new System.Drawing.Point(12, 27);
             this.pbLogo.Name = "pbLogo";
             this.pbLogo.Size = new System.Drawing.Size(149, 56);
             this.pbLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -199,7 +204,7 @@
             this.lbNotice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbNotice.BackColor = System.Drawing.Color.Transparent;
-            this.lbNotice.Location = new System.Drawing.Point(0, 101);
+            this.lbNotice.Location = new System.Drawing.Point(0, 114);
             this.lbNotice.Name = "lbNotice";
             this.lbNotice.Size = new System.Drawing.Size(400, 13);
             this.lbNotice.TabIndex = 11;
@@ -207,11 +212,13 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuToolStripMenuItem,
             this.preferencesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.menuStrip1.Size = new System.Drawing.Size(400, 24);
             this.menuStrip1.TabIndex = 12;
             this.menuStrip1.Text = "menuStrip1";
@@ -234,7 +241,9 @@
             // preferencesToolStripMenuItem
             // 
             this.preferencesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.configureHostToolStripMenuItem});
+            this.configureHostToolStripMenuItem,
+            this.setGlobalPasswordToolStripMenuItem,
+            this.generateNewTokenToolStripMenuItem});
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(80, 20);
             this.preferencesToolStripMenuItem.Text = "Preferences";
@@ -242,15 +251,42 @@
             // configureHostToolStripMenuItem
             // 
             this.configureHostToolStripMenuItem.Name = "configureHostToolStripMenuItem";
-            this.configureHostToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-            this.configureHostToolStripMenuItem.Text = "&Configure host...";
+            this.configureHostToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.configureHostToolStripMenuItem.Text = "&Configure host";
+            this.configureHostToolStripMenuItem.Click += new System.EventHandler(this.configureHostToolStripMenuItem_Click);
+            // 
+            // setGlobalPasswordToolStripMenuItem
+            // 
+            this.setGlobalPasswordToolStripMenuItem.Name = "setGlobalPasswordToolStripMenuItem";
+            this.setGlobalPasswordToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.setGlobalPasswordToolStripMenuItem.Text = "&Set Global password";
+            // 
+            // generateNewTokenToolStripMenuItem
+            // 
+            this.generateNewTokenToolStripMenuItem.Name = "generateNewTokenToolStripMenuItem";
+            this.generateNewTokenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.generateNewTokenToolStripMenuItem.Text = "&Generate new token";
+            this.generateNewTokenToolStripMenuItem.Click += new System.EventHandler(this.generateNewTokenToolStripMenuItem_Click);
+            // 
+            // lblPassword
+            // 
+            this.lblPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPassword.Location = new System.Drawing.Point(246, 93);
+            this.lblPassword.Name = "lblPassword";
+            this.lblPassword.Size = new System.Drawing.Size(139, 16);
+            this.lblPassword.TabIndex = 13;
+            this.lblPassword.Text = "Global password is set";
+            this.lblPassword.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.lblPassword.Visible = false;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(400, 187);
+            this.ClientSize = new System.Drawing.Size(400, 200);
+            this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.lbNotice);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.pbAd);
@@ -304,6 +340,9 @@
         private System.Windows.Forms.ToolStripMenuItem shutdownHostToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configureHostToolStripMenuItem;
+        private System.Windows.Forms.Label lblPassword;
+        private System.Windows.Forms.ToolStripMenuItem setGlobalPasswordToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem generateNewTokenToolStripMenuItem;
     }
 }
 
