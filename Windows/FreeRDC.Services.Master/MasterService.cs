@@ -33,13 +33,7 @@ namespace FreeRDC.Services
             {
                 case ECommandType.AUTH:
                     var cmd = _cs.DeserializeAs<Commands.AUTH>(command.Command);
-                    MasterCore.DeviceEntry device = null;
-                    if ((Commands.AUTH.AuthTypes)cmd.AuthType == Commands.AUTH.AuthTypes.Host)
-                        device = _master.AddHost(senderEndPoint, cmd.Fingerprint);
-                    else if ((Commands.AUTH.AuthTypes)cmd.AuthType == Commands.AUTH.AuthTypes.Client)
-                        device = _master.AddClient(senderEndPoint, cmd.Fingerprint);
-                    else
-                        throw new Exception("Invalid AuthType");
+                    MasterCore.DeviceEntry device = _master.AddDevice(senderEndPoint, cmd.Fingerprint);
                     _server.SendCommand(device.EndPoint, "MASTER", new Commands.AUTH_OK() { AssignedID = device.AssignedID, EndpointAddress = device.EndPoint.ToString() });
                     break;
                 case ECommandType.CLIENT_CONNECTIONREQUEST:

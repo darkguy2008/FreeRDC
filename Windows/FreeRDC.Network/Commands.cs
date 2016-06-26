@@ -27,13 +27,6 @@
     {
         public class AUTH
         {
-            public enum AuthTypes
-            {
-                Host = 1,
-                Client = 2
-            }
-
-            public int AuthType { get; set; }
             public string Fingerprint { get; set; }
         }
 
@@ -47,6 +40,7 @@
 
         public class INTRODUCER
         {
+            public bool IncomingConnection { get; set; }
             public string RemoteEndPointAddress { get; set; }
         }
 

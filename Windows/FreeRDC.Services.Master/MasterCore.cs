@@ -37,7 +37,7 @@ namespace FreeRDC.Services
             return String.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
         }
 
-        public DeviceEntry AddHost(IPEndPoint ep, string fingerprint)
+        public DeviceEntry AddDevice(IPEndPoint ep, string fingerprint)
         {
             DeviceEntry h = new DeviceEntry();
             h.EndPoint = ep;
@@ -67,16 +67,6 @@ namespace FreeRDC.Services
             }
 
             return h;
-        }
-
-        public DeviceEntry AddClient(IPEndPoint ep, string fingerprint)
-        {
-            DeviceEntry c = new DeviceEntry();
-            c.EndPoint = ep;
-            c.AssignedID = GenerateID();
-            c.Fingerprint = fingerprint;
-            OnlineClients.Add(c);
-            return c;
-        }
+        }        
     }
 }
