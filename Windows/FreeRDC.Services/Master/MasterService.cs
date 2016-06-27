@@ -16,7 +16,6 @@ namespace FreeRDC.Services.Master
         public delegate void dlgIntroducer(Commands.INTRODUCER introducer);
         public event dlgConnected OnConnected;
         public event dlgAuthenticated OnAuthenticated;
-        public event dlgIntroducer OnIntroducerPacket;
 
         public override void Init()
         {
@@ -30,6 +29,11 @@ namespace FreeRDC.Services.Master
             Master.OnConnected += MasterConnection_OnConnected;
             Master.OnCommandReceived += MasterConnection_OnCommandReceived;
             Master.Client(Address, Port);
+        }
+
+        public void ConnectToHost(string tag)
+        {
+            Master.SendCommand(Master.RemoteEndPoint, tag, new Commands.CLIENT_CONNECTIONREQUEST());
         }
 
         private void MasterConnection_OnConnected(IPEndPoint ep)
@@ -55,10 +59,6 @@ namespace FreeRDC.Services.Master
                         Console.WriteLine("Outside address: " + cmdAuth.EndpointAddress);
                         OnAuthenticated?.Invoke(cmdAuth.AssignedID, cmdAuth.EndpointAddress);
                     }
-                    break;
-                case ECommandType.INTRODUCER:
-                    var cmdIntroducer = Serializer.DeserializeAs<Commands.INTRODUCER>(cmd.Command);
-                    OnIntroducerPacket?.Invoke(cmdIntroducer);
                     break;
             }
         }

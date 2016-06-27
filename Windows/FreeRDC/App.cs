@@ -8,6 +8,8 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using System;
+using FreeRDC.Common.UI;
+using System.Collections.Generic;
 
 namespace FreeRDC
 {
@@ -21,16 +23,21 @@ namespace FreeRDC
         public string OutsideAddress { get; set; }
 
         public INIFile Config { get; set; }
+        public string ConfigFilename { get; set; }
         public MasterService Master { get; set; }
         public HostService Host { get; set; }
+        public List<frmRemote> Connections { get; set; }
 
         private Thread _thConnect;
 
-        public void Init()
+        public void Init(string cfgFile)
         {
+            ConfigFilename = cfgFile;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Connections = new List<frmRemote>();
             MainForm = new frmMain();
             ShuttingDown = false;
 
@@ -39,6 +46,8 @@ namespace FreeRDC
             _thConnect = new Thread(() =>
             {
                 ReloadConfig();
+                MainForm.SetStatus("Initializing...");
+                Fingerprint = HWID.GenerateFingerprint();
 
                 Master = new MasterService()
                 {
@@ -48,10 +57,6 @@ namespace FreeRDC
                 };
                 Master.OnConnected += Master_OnConnected;
                 Master.OnAuthenticated += Master_OnAuthenticated;
-                Master.OnIntroducerPacket += Master_OnIntroducerPacket;
-
-                MainForm.SetStatus("Initializing...");
-                Fingerprint = HWID.GenerateFingerprint();
                 Master.Init();
                 MainForm.SetStatus("Connecting to Master...");
                 Master.Start();
@@ -63,6 +68,7 @@ namespace FreeRDC
 
         private void Master_OnIntroducerPacket(Commands.INTRODUCER introducer)
         {
+            Console.WriteLine("{0}, {1}", introducer.IncomingConnection, introducer.RemoteEndPointAddress);
             MainForm.SetStatus("Incoming connection...");
         }
 
@@ -72,6 +78,8 @@ namespace FreeRDC
             OutsideAddress = address;
             MainForm.SetStatus("Ready");
             MainForm.SetTag(AssignedTag);
+            MainForm.ReadyToUse = true;
+            MainForm.RefreshUI();
             InitHost();
         }
 
@@ -83,8 +91,10 @@ namespace FreeRDC
             {
                 AssignedTag = AssignedTag,
                 Address = OutsideAddress.Split(':')[0],
-                Port = int.Parse(OutsideAddress.Split(':')[1])
+                Port = int.Parse(OutsideAddress.Split(':')[1]),
+                Password = HostPassword
             };
+            Host.Init();
             Host.Start();
         }
 
@@ -98,6 +108,21 @@ namespace FreeRDC
         private void Master_OnConnected(IPEndPoint ep)
         {
             MainForm.SetStatus("Connected to master...");
+        }
+
+        public void Connect(string hostTag)
+        {
+            string pwd = string.Empty;
+            if(UI.PasswordInput(MainForm, MainForm.Icon, MainForm.Text, "Please enter the host's password in order to authenticate yourself", "", ref pwd))
+            {
+                frmRemote frm = new frmRemote()
+                {
+                    HostTag = hostTag,
+                    Password = pwd
+                };
+                Connections.Add(frm);
+                frm.Init();
+            }
         }
 
         public bool Close()
@@ -126,8 +151,10 @@ namespace FreeRDC
         public void ReloadConfig()
         {
             Config = new INIFile();
-            Config.Read("FreeRDC.ini");
+            Config.Read(ConfigFilename);
             HostPassword = Config.GetValue("FreeRDC", "Password");
+            if(Host != null)
+                Host.Password = HostPassword;
             MainForm.RefreshUI();
         }
     }

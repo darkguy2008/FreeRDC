@@ -8,6 +8,23 @@ namespace FreeRDC
 {
     public partial class frmMain : Form
     {
+        private bool _readyToUse;
+        public bool ReadyToUse
+        {
+            get { return _readyToUse; }
+            set
+            {
+                _readyToUse = value;
+                Invoke(new Action(() =>
+                {
+                    btnConnect.Enabled = _readyToUse;
+                    txConnect.Enabled = _readyToUse;
+                    if(value)
+                        txConnect.Focus();
+                }));
+            }
+        }
+
         private Color _defaultInfoColor;
 
         public frmMain()
@@ -18,7 +35,9 @@ namespace FreeRDC
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            ReadyToUse = false;
             txConnect.Focus();
+            RefreshUI();
         }
 
         private void showHideToolStripMenuItem_Click(object sender, EventArgs e)
@@ -79,7 +98,7 @@ namespace FreeRDC
 
         public void RefreshUI()
         {
-            SetInfo("FreeRDC is ready");
+            SetInfo("");
             lnkPassword.Text = string.IsNullOrEmpty(Program.app.HostPassword) ? "Not set" : "Set";
             lnkPassword.LinkColor = string.IsNullOrEmpty(Program.app.HostPassword) ? Color.Red : Color.DarkSlateGray;
             if (string.IsNullOrEmpty(Program.app.HostPassword))
@@ -90,6 +109,11 @@ namespace FreeRDC
         {
             Process.Start(Program.AppPath + "FreeRDC.ini").WaitForExit();
             Program.app.ReloadConfig();
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            Program.app.Connect(txConnect.Text);
         }
     }
 }

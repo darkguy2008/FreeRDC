@@ -13,9 +13,9 @@ namespace FreeRDC
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            app.Init();
+            app.Init(args[0]);
         }
     }
 }

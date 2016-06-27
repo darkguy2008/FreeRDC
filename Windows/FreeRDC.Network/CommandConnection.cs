@@ -53,8 +53,7 @@ namespace FreeRDC.Network
             CommandContainer command = new CommandContainer() { ID = id, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = _cs.Serialize(cmd) };
             byte[] data = _cs.Serialize(command);
             //Console.WriteLine("SEND -> {0}|{1}", (ECommandType)command.Type, cmd);
-            // Connection.Send(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
-            Connection.Send(destination, data);
+            Connection.Send(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
         }
 
         private void EvtPacketReceived(RUDPPacket p)
