@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace FreeRDC.Services
+namespace FreeRDC.Services.Host
 {
     // http://stackoverflow.com/questions/19978170/c-sharp-keyeventf-keyup-doesnt-work-in-specific-app
     public class RDCRemoteKeyboard

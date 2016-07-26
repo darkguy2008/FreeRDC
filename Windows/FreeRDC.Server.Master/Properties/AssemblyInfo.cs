@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FreeRDC.Services")]
+[assembly: AssemblyTitle("FreeRDC.Server.Master")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("FreeRDC.Services")]
+[assembly: AssemblyProduct("FreeRDC.Server.Master")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("61afa4c8-8692-4ba2-a7fb-93aa922cef68")]
+[assembly: Guid("4e906f51-b6f5-47f7-88d1-797cd293b944")]
 
 // Version information for an assembly consists of the following four values:
 //

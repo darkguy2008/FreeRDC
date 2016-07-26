@@ -1,72 +1,78 @@
 ﻿using SharpRUDP;
 using System;
-using System.Net;
-using System.Threading;
 
 namespace FreeRDC.Network
 {
     public class CommandConnection
     {
-        public bool IsServer { get; set; }
+        public static CommandSerializer Serializer = new CommandSerializer();
+
+        public bool IsServer { get { return Connection.IsServer; } }
+        public bool IsAlive { get { return Connection.IsAlive; } }
         public RUDPConnection Connection { get; set; }
-        public IPEndPoint RemoteEndPoint { get; set; }
+        public string ChannelName { get; set; }
 
-        public delegate void dlgConnectionEvent(IPEndPoint ep);
-        public delegate void dlgCommandEvent(IPEndPoint ep, CommandContainer cmd);
-        public event dlgCommandEvent OnCommandReceived;
-        public event dlgConnectionEvent OnConnected;
+        public delegate void dConnectionEvent(RUDPChannel channel);
+        public delegate void dCommandEvent(RUDPChannel channel, CommandContainer command);
 
-        private CommandSerializer _cs = new CommandSerializer();
+        public event dConnectionEvent OnConnected;
+        public event dConnectionEvent OnIncomingConnection;
+        public event dCommandEvent OnCommandReceived;
 
-        public CommandConnection()
+        public void Connect(string masterAddress, int masterPort, string channelName)
+        {
+            ChannelName = channelName;
+            Connection = new RUDPConnection();
+            Connection.Create(false, masterAddress, masterPort);
+            Connection.OnConnected += Connection_OnConnected;
+            Connection.OnChannelAssigned += Connection_OnChannelAssigned;
+            Connection.OnPacketReceived += Connection_OnPacketReceived;
+            Connection.RequestChannel(Connection.RemoteEndpoint, channelName);
+        }
+
+        public void Listen(string address, int port)
         {
             Connection = new RUDPConnection();
-            // Connection.DebugEnabled = true;
-            // Connection.SerializeMode = RUDPSerializeMode.Binary;
-            Connection.OnSocketError += (IPEndPoint ep, Exception ex) => {
-                Console.WriteLine("Socket error");
-                Thread.Sleep(5000);
-                if (IsServer)
-                    Server(Connection.Address, Connection.Port);
-                else
-                    Client(Connection.Address, Connection.Port);
-            };
-            Connection.OnConnection += (IPEndPoint ep) => { OnConnected?.Invoke(ep); };
+            Connection.Create(true, address, port);
+            Connection.OnConnected += Connection_OnConnected;
+            Connection.OnIncomingConnection += Connection_OnIncomingConnection;
+            Connection.OnPacketReceived += Connection_OnPacketReceived;
         }
 
-        public void Server(string address, int port)
+
+        private void Connection_OnConnected(RUDPChannel channel)
         {
-            IsServer = true;
-            Connection.OnPacketReceived += EvtPacketReceived;
-            Connection.Listen(address, port);
+            RUDPConnection.Trace("Channel {0} connected! calling {1}", channel.Name, OnConnected);
+            OnConnected?.Invoke(channel);
         }
 
-        public void Client(string address, int port)
+        private void Connection_OnIncomingConnection(RUDPChannel channel)
         {
-            IsServer = false;
-            Connection.OnPacketReceived += EvtPacketReceived;
-            Connection.Connect(address, port);
+            RUDPConnection.Trace("Channel {0} for {1} incoming!", channel.Name, ChannelName);
+            OnIncomingConnection?.Invoke(channel);
         }
 
-        public void SendCommand(IPEndPoint destination, string id, object cmd, Action EvtCommandSent = null)
+        private void Connection_OnChannelAssigned(RUDPChannel channel)
         {
-            CommandContainer command = new CommandContainer() { ID = id, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = _cs.Serialize(cmd) };
-            byte[] data = _cs.Serialize(command);
-            //Console.WriteLine("SEND -> {0}|{1}", (ECommandType)command.Type, cmd);
-            Connection.Send(destination, data, (RUDPPacket p) => { EvtCommandSent?.Invoke(); });
+            RUDPConnection.Trace("Channel {0} for {1} assigned!", channel.Name, ChannelName);
+            if (channel.Name == ChannelName)
+                channel.Connect();
         }
 
-        private void EvtPacketReceived(RUDPPacket p)
+        private void Connection_OnPacketReceived(RUDPChannel channel, RUDPPacket p)
         {
-            CommandContainer cmd = _cs.DeserializeAs<CommandContainer>(p.Data);
-            //Console.WriteLine("RECV <- {0}|{1}", (ECommandType)cmd.Type, cmd);
-            OnCommandReceived?.Invoke(p.Src, cmd);
+            CommandContainer cmd = Serializer.DeserializeAs<CommandContainer>(p.Data);
+            RUDPConnection.Debug("PKT RECV <- {0}: {1}", channel.Name, (ECommandType)cmd.Type);
+            OnCommandReceived?.Invoke(channel, cmd);
         }
 
-        public void Shutdown()
+        public void SendCommand(RUDPChannel channel, string tag, object cmd, Action EvtCommandSent = null)
         {
-            Connection.Disconnect();
+            CommandContainer command = new CommandContainer() { Tag = tag, Type = (byte)(ECommandType)Enum.Parse(typeof(ECommandType), cmd.GetType().Name), Command = Serializer.Serialize(cmd) };
+            byte[] data = Serializer.Serialize(command);
+            RUDPConnection.Debug("PKT SEND -> {0}: {1}", (ECommandType)command.Type, cmd);
+            channel.SendData(data);
+            EvtCommandSent?.Invoke();
         }
     }
 }
-    

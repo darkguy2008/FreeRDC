@@ -1,20 +1,28 @@
-﻿using System;
+﻿using FreeRDC.Network;
 using FreeRDC.Services.Base;
-using System.Net;
-using FreeRDC.Network;
+using FreeRDC.Services.Master;
+using SharpRUDP;
+using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FreeRDC.Services.Host
 {
-    public class HostService : BaseService
+    // TODO: UNIFY ALL INTO 1 CONNECTION
+    // USE FUNCTION TO RETURN BOOL TRUE OR FALSE IF PACKET WAS PROCESSED
+    // ADD CHAINS AS IN
+    // BOOL KEEPPROCESSING = PROCESSHOSTPACKET(PKT); PROCESSCLIENTPACKET(PKT); PROCESSMASTERPACKET(PKT) IN THAT ORDER
+
+    public class HostService : BaseService, ICommandService
     {
-        public CommandConnection Host;
         public string AssignedTag { get; set; }
         public string Password { get; set; }
-        public Dictionary<string, IPEndPoint> OnlineClients { get; set; }
+
+        public Dictionary<string, RUDPChannel> OnlineClients { get; set; }
+        public CommandConnection HostConnection { get; set; }
+        public MasterService Master { get; set; }
 
         private Thread _thScreenUpdate;
         private object _mutexClients = new object();
@@ -23,32 +31,21 @@ namespace FreeRDC.Services.Host
         public override void Init()
         {
             base.Init();
-            Host = new CommandConnection();
-            OnlineClients = new Dictionary<string, IPEndPoint>();
+            OnlineClients = new Dictionary<string, RUDPChannel>();
         }
 
-        public override void Start()
+        public void ProcessCommand(RUDPChannel channel, CommandContainer cmd)
         {
-            base.Start();
-            Host.OnCommandReceived += Host_OnCommandReceived;
-            Console.WriteLine("Host listening at {0}:{1}", Address, Port);
-            Host.Server(Address, Port);
-        }
-
-        private void Host_OnCommandReceived(IPEndPoint ep, CommandContainer cmd)
-        {
-            if (cmd.ID != AssignedTag)
-                return;
-
-            switch((ECommandType)cmd.Type)
+            switch ((ECommandType)cmd.Type)
             {
                 case ECommandType.CLIENT_LOGIN:
                     var cmdLogin = Serializer.DeserializeAs<Commands.CLIENT_LOGIN>(cmd.Command);
-                    if (cmdLogin.Password == Password)
+                    //if (cmdLogin.Password == Password || true)
+                    if (true)
                     {
                         lock (_mutexClients)
-                            OnlineClients.Add(ep.ToString(), ep);
-                        Host.SendCommand(ep, AssignedTag, new Commands.CLIENT_LOGIN_OK(), null);
+                            OnlineClients.Add(channel.Name, channel);
+                        HostConnection.SendCommand(channel, Master.AssignedTag, new Commands.CLIENT_LOGIN_OK(), null);
                         if (_thScreenUpdate == null || !_thScreenUpdate.IsAlive)
                         {
                             _thScreenUpdate = new Thread(new ThreadStart(ThreadScreenUpdate));
@@ -56,12 +53,9 @@ namespace FreeRDC.Services.Host
                         }
                     }
                     break;
-                case ECommandType.INTRODUCER:
-                    var cmdIntroducer = Serializer.DeserializeAs<Commands.INTRODUCER>(cmd.Command);
-                    break;
             }
         }
-
+        
         private void ThreadScreenUpdate()
         {
             int count = 0;
@@ -73,7 +67,7 @@ namespace FreeRDC.Services.Host
                 lock (_mutexClients)
                     Parallel.ForEach(OnlineClients, (kvp) =>
                     {
-                        // Host.SendCommand(kvp.Value, AssignedTag, new Commands.HOST_SCREENREFRESH() { Buffer = ms.ToArray() });
+                        HostConnection.SendCommand(kvp.Value, AssignedTag, new Commands.HOST_SCREENREFRESH() { Buffer = ms.ToArray() });
                     });
                 Thread.Sleep(100);
                 lock (_mutexClients)
@@ -81,9 +75,13 @@ namespace FreeRDC.Services.Host
             }
         }
 
-        public void Stop()
+        public void Stop() { }
+
+        public void Connected(RUDPChannel channel) { }
+
+        public void Connection(RUDPChannel channel)
         {
-            Host.Shutdown();
+            throw new NotImplementedException();
         }
     }
 }

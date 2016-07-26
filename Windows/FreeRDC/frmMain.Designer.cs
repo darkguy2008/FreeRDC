@@ -223,6 +223,7 @@ namespace FreeRDC
             this.txConnect.Name = "txConnect";
             this.txConnect.Size = new System.Drawing.Size(110, 22);
             this.txConnect.TabIndex = 4;
+            this.txConnect.Text = "92573B8B";
             this.txConnect.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // btnConnect

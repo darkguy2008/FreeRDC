@@ -1,58 +1,36 @@
-﻿using FreeRDC.Network;
+﻿using FreeRDC.Common.Hardware;
+using FreeRDC.Network;
 using FreeRDC.Services.Base;
+using SharpRUDP;
 using System;
-using System.Net;
 
 namespace FreeRDC.Services.Master
 {
-    public class MasterService : BaseService
+    public class MasterService : BaseService, ICommandService
     {
-        public CommandConnection Master;
+        public CommandConnection Connection { get; set; }
         public string AssignedTag { get; set; }
         public string Fingerprint { get; set; }
 
-        public delegate void dlgConnected(IPEndPoint ep);
         public delegate void dlgAuthenticated(string tag, string address);
-        public delegate void dlgIntroducer(Commands.INTRODUCER introducer);
-        public event dlgConnected OnConnected;
+        public delegate void dlgIncomingConnection(Commands.INTRODUCER cmdIntroducer);
+        public delegate void dlgHostConnection(CommandContainer cmd, Commands.INTRODUCER introducer);
         public event dlgAuthenticated OnAuthenticated;
+        public event dlgHostConnection OnHostConnected;
+        public event dlgIncomingConnection OnIncomingConnection;
 
         public override void Init()
         {
-            base.Init();
-            Master = new CommandConnection();
+            Fingerprint = HWID.GenerateFingerprint();
         }
 
-        public override void Start()
-        {
-            base.Start();
-            Master.OnConnected += MasterConnection_OnConnected;
-            Master.OnCommandReceived += MasterConnection_OnCommandReceived;
-            Master.Client(Address, Port);
-        }
-
-        public void ConnectToHost(string tag)
-        {
-            Master.SendCommand(Master.RemoteEndPoint, tag, new Commands.CLIENT_CONNECTIONREQUEST());
-        }
-
-        private void MasterConnection_OnConnected(IPEndPoint ep)
-        {
-            Master.RemoteEndPoint = ep;
-            Master.SendCommand(Master.RemoteEndPoint, null, new Commands.AUTH() { Fingerprint = Fingerprint }, () =>
-            {
-                Console.WriteLine("Identifying with fingerprint {0}...", Fingerprint);
-                OnConnected?.Invoke(ep);
-            });
-        }
-
-        private void MasterConnection_OnCommandReceived(IPEndPoint ep, CommandContainer cmd)
+        public void ProcessCommand(RUDPChannel channel, CommandContainer cmd)
         {
             switch ((ECommandType)cmd.Type)
             {
                 case ECommandType.AUTH_OK:
-                    var cmdAuth = Serializer.DeserializeAs<Commands.AUTH_OK>(cmd.Command);
-                    if (cmd.ID == "MASTER")
+                    var cmdAuth = CommandConnection.Serializer.DeserializeAs<Commands.AUTH_OK>(cmd.Command);
+                    if (cmd.Tag == "MASTER")
                     {
                         AssignedTag = cmdAuth.AssignedID;
                         Console.WriteLine("Assigned tag: " + cmdAuth.AssignedID);
@@ -60,7 +38,22 @@ namespace FreeRDC.Services.Master
                         OnAuthenticated?.Invoke(cmdAuth.AssignedID, cmdAuth.EndpointAddress);
                     }
                     break;
+                case ECommandType.INTRODUCER:
+                    var cmdIntroducer = Serializer.DeserializeAs<Commands.INTRODUCER>(cmd.Command);
+                    // TODO: Holepunch here
+                    if (cmdIntroducer.IncomingConnection)
+                        OnIncomingConnection?.Invoke(cmdIntroducer);
+                    else
+                        OnHostConnected?.Invoke(cmd, cmdIntroducer);
+                    break;
             }
+        }
+
+        public void Connected(RUDPChannel channel) { }
+
+        void ICommandService.Connection(RUDPChannel channel)
+        {
+            throw new NotImplementedException();
         }
     }
 }

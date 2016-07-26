@@ -1,4 +1,5 @@
 ﻿using FreeRDC.Common.IO;
+using FreeRDC.Server.Master;
 using System;
 using System.Threading;
 
@@ -6,7 +7,7 @@ namespace FreeRDC.Master
 {
     public class Program
     {
-        private static Services.MasterService _srv = new Services.MasterService();
+        private static App _srv = new App();
         private static INIFile Config = new INIFile();
         private static Thread thConfig;
 
@@ -25,7 +26,7 @@ namespace FreeRDC.Master
             string address = Config.GetValue("Master", "Listen");
             Console.WriteLine("Master server started at " + address + ":" + port);
             _srv.Start(address, port);
-            while (_srv.IsListening)
+            while (_srv.IsAlive)
                 Thread.Sleep(1000);
             Console.WriteLine("Master server stopped");
             Console.ReadKey();

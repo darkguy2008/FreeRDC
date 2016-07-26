@@ -50,9 +50,9 @@
       <Project>{57be33ef-a6e7-425c-acc3-ec001ef40dfb}</Project>
       <Name>FreeRDC.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Master\FreeRDC.Services.Master.csproj">
-      <Project>{f1723812-bedb-429c-8e84-41f2451bbd64}</Project>
-      <Name>FreeRDC.Services.Master</Name>
+    <ProjectReference Include="..\FreeRDC.Server.Master\FreeRDC.Server.Master.csproj">
+      <Project>{4E906F51-B6F5-47F7-88D1-797CD293B944}</Project>
+      <Name>FreeRDC.Server.Master</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

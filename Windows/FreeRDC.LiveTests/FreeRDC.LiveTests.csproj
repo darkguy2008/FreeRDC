@@ -47,23 +47,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
       <Name>FreeRDC.Network</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Client\FreeRDC.Services.Client.csproj">
-      <Project>{94346a18-bddb-4fd0-a308-8b2e8d94b8bc}</Project>
-      <Name>FreeRDC.Services.Client</Name>
+    <ProjectReference Include="..\FreeRDC.Server.Master\FreeRDC.Server.Master.csproj">
+      <Project>{4e906f51-b6f5-47f7-88d1-797cd293b944}</Project>
+      <Name>FreeRDC.Server.Master</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Host\FreeRDC.Services.Host.csproj">
-      <Project>{f0898de2-2c6c-4923-8345-0a6f761d25a4}</Project>
-      <Name>FreeRDC.Services.Host</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FreeRDC.Services.Master\FreeRDC.Services.Master.csproj">
-      <Project>{f1723812-bedb-429c-8e84-41f2451bbd64}</Project>
-      <Name>FreeRDC.Services.Master</Name>
+    <ProjectReference Include="..\FreeRDC.Services\FreeRDC.Services.csproj">
+      <Project>{61afa4c8-8692-4ba2-a7fb-93aa922cef68}</Project>
+      <Name>FreeRDC.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

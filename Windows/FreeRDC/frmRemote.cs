@@ -1,13 +1,7 @@
-﻿using FreeRDC.Services;
-using FreeRDC.Services.Master;
+﻿using FreeRDC.Common.UI;
+using FreeRDC.Network;
+using FreeRDC.Services.Client;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace FreeRDC
@@ -17,7 +11,8 @@ namespace FreeRDC
         public ClientService Client { get; set; }
 
         public string HostTag { get; set; }
-        public string Password { get; set; }
+        public CommandConnection ClientConnection { get; set; }
+        public frmMain MainForm { get; set; }
 
         private frmWait _frmWait = new frmWait();        
 
@@ -30,21 +25,39 @@ namespace FreeRDC
         {
             Client = new ClientService()
             {
-                Master = Program.app.Master
+                Service = Program.app.MainService,
+                ClientConnection = ClientConnection
             };
             _frmWait.Show();
+        }
 
-            new Thread(() =>
+        public void Connect()
+        { 
+            Client.Connect(HostTag);
+        }
+
+        public void PasswordPrompt()
+        {
+            _frmWait.Invoke(new Action(() =>
             {
-                Client.Connect(HostTag, Password);
-                Thread.Sleep(2000);
-                _frmWait.Invoke(new Action(() =>
+                string pwd = string.Empty;
+                if (UI.PasswordInput(MainForm, MainForm.Icon, MainForm.Text, "Please enter the host's password in order to authenticate yourself", "", ref pwd))
                 {
-                    _frmWait.Close();
-                    _frmWait.Dispose();
-                    Show();
-                }));
-            }).Start();
+                    Client.OnLoggedIn += Client_OnLoggedIn;
+                    Client.Login(pwd);
+                }
+            }));
+        }
+
+        private void Client_OnLoggedIn()
+        {
+            Client.OnLoggedIn -= Client_OnLoggedIn;
+            _frmWait.Invoke(new Action(() =>
+            {
+                _frmWait.Close();
+                _frmWait.Dispose();
+                Show();
+            }));
         }
     }
 }

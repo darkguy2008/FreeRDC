@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CEAF8457-FB6A-4188-B207-F4818E6B9B94}</ProjectGuid>
+    <ProjectGuid>{4E906F51-B6F5-47F7-88D1-797CD293B944}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FreeRDC.Network</RootNamespace>
-    <AssemblyName>FreeRDC.Network</AssemblyName>
+    <RootNamespace>FreeRDC.Server.Master</RootNamespace>
+    <AssemblyName>FreeRDC.Server.Master</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,7 +32,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,14 +39,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandConnection.cs" />
-    <Compile Include="CommandContainer.cs" />
-    <Compile Include="Commands.cs" />
-    <Compile Include="CommandSerializer.cs" />
-    <Compile Include="ICommandService.cs" />
+    <Compile Include="MasterCore.cs" />
+    <Compile Include="MasterDB.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="MasterServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
+      <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
+      <Name>FreeRDC.Network</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharpRUDP\SharpRUDP\SharpRUDP\SharpRUDP.csproj">
       <Project>{65ccef8d-4f60-49b9-81d4-2a71570f1a20}</Project>
       <Name>SharpRUDP</Name>

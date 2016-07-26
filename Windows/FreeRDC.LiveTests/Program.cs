@@ -1,5 +1,5 @@
-﻿using FreeRDC.Services;
-using FreeRDC.Services.Client;
+﻿using FreeRDC.Server.Master;
+using FreeRDC.Services.Master;
 using System.Threading;
 
 namespace FreeRDC.LiveTests
@@ -8,17 +8,16 @@ namespace FreeRDC.LiveTests
     {
         static void Main(string[] args)
         {
-            MasterService m = new MasterService();
+            App m = new App();
             m.Start("127.0.0.1", 8000);
 
-            HostService h = new HostService();
-            h.ConnectToMaster("127.0.0.1", 8000);
-
-            ClientService c = new ClientService();
-            c.ConnectToMaster("127.0.0.1", 8000);
-
             Thread.Sleep(1000);
-            c.ConnectToHost(h.AssignedID);
+            MasterService ms = new MasterService()
+            {
+                Address = "127.0.0.1",
+                Port = 8000
+            };
+            ms.Start();
 
             while (true)
                 Thread.Sleep(10);

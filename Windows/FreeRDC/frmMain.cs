@@ -99,9 +99,9 @@ namespace FreeRDC
         public void RefreshUI()
         {
             SetInfo("");
-            lnkPassword.Text = string.IsNullOrEmpty(Program.app.HostPassword) ? "Not set" : "Set";
-            lnkPassword.LinkColor = string.IsNullOrEmpty(Program.app.HostPassword) ? Color.Red : Color.DarkSlateGray;
-            if (string.IsNullOrEmpty(Program.app.HostPassword))
+            lnkPassword.Text = string.IsNullOrEmpty(Program.app.MainService.HostPassword) ? "Not set" : "Set";
+            lnkPassword.LinkColor = string.IsNullOrEmpty(Program.app.MainService.HostPassword) ? Color.Red : Color.DarkSlateGray;
+            if (string.IsNullOrEmpty(Program.app.MainService.HostPassword))
                 SetInfo("Note: Incoming connections are not allowed without a password. Click Password to set.", Color.Red);
         }
 

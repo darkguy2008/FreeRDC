@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4B25B3B4-23A4-4920-B177-6D0344D46810}</ProjectGuid>
+    <ProjectGuid>{61AFA4C8-8692-4BA2-A7FB-93AA922CEF68}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FreeRDC.Services</RootNamespace>
@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Base\BaseService.cs" />
     <Compile Include="Client\ClientService.cs" />
+    <Compile Include="FreeRDCService.cs" />
     <Compile Include="Host\HostService.cs" />
     <Compile Include="Host\RDCRemoteKeyboard.cs" />
     <Compile Include="Host\RDCRemoteMouse.cs" />
@@ -51,9 +52,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FreeRDC.Common\FreeRDC.Common.csproj">
+      <Project>{57be33ef-a6e7-425c-acc3-ec001ef40dfb}</Project>
+      <Name>FreeRDC.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FreeRDC.Network\FreeRDC.Network.csproj">
       <Project>{ceaf8457-fb6a-4188-b207-f4818e6b9b94}</Project>
       <Name>FreeRDC.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpRUDP\SharpRUDP\SharpRUDP\SharpRUDP.csproj">
+      <Project>{65ccef8d-4f60-49b9-81d4-2a71570f1a20}</Project>
+      <Name>SharpRUDP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
